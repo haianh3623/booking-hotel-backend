@@ -1,16 +1,12 @@
 package group.assignment.booking_hotel_backend.general.services;
 
-import group.assignment.booking_hotel_backend.general.dao.UsersDao;
+import group.assignment.booking_hotel_backend.general.repository.UsersDao;
 import group.assignment.booking_hotel_backend.general.dto.RegistrationRequest;
 import group.assignment.booking_hotel_backend.general.dto.UsersDto;
 import group.assignment.booking_hotel_backend.general.models.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UsersService {
