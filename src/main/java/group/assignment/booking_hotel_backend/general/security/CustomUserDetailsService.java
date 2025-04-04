@@ -1,6 +1,6 @@
 package group.assignment.booking_hotel_backend.security;
 
-import group.assignment.booking_hotel_backend.general.dao.UsersDao;
+import group.assignment.booking_hotel_backend.general.repository.UsersDao;
 import group.assignment.booking_hotel_backend.general.models.Users;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

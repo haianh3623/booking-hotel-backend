@@ -1,4 +1,4 @@
-package group.assignment.booking_hotel_backend.general.dao;
+package group.assignment.booking_hotel_backend.general.repository;
 
 import group.assignment.booking_hotel_backend.general.models.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
