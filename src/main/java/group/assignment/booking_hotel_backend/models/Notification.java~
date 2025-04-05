@@ -1,0 +1,19 @@
+package group.assignment.booking_hotel_backend.models;
+import jakarta.persistence.*;
+import lombok.*;
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Notification extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "noti_id")
+    private Integer notiId;
+    private String content;
+
+
+}

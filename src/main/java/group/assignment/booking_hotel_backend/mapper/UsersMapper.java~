@@ -1,0 +1,47 @@
+package group.assignment.booking_hotel_backend.mapper;
+import group.assignment.booking_hotel_backend.dto.RegistrationRequest;
+import group.assignment.booking_hotel_backend.dto.UsersDto;
+import group.assignment.booking_hotel_backend.models.Users;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+public class UsersMapper {
+
+    public static UsersDto mapToUsersDto(Users user, UsersDto usersDto) {
+        usersDto.setUsername(user.getUsername());
+        usersDto.setFullname(user.getFullname());
+        usersDto.setEmail(user.getEmail());
+        usersDto.setPhone(user.getPhone());
+        usersDto.setScore(user.getScore());
+        return usersDto;
+    }
+
+//    public static Users mapToUser(UsersDto usersDto, Users user, PasswordEncoder passwordEncoder) {
+//        user.setUsername(usersDto.getUsername());
+//        user.setFullname(usersDto.getFullname());
+//        user.setEmail(usersDto.getEmail());
+//        user.setPhone(usersDto.getPhone());
+//        user.setPassword(passwordEncoder.encode(usersDto.getPassword()));
+//        user.setScore(usersDto.getScore());
+//        return user;
+//    }
+
+    public static Users mapToUser(UsersDto usersDto, Users user) {
+        user.setUsername(usersDto.getUsername());
+        user.setFullname(usersDto.getFullname());
+        user.setEmail(usersDto.getEmail());
+        user.setPhone(usersDto.getPhone());
+        user.setPassword(usersDto.getPassword());
+        user.setScore(usersDto.getScore());
+        return user;
+    }
+
+    public static Users mapToUser(RegistrationRequest request, Users user, PasswordEncoder passwordEncoder) {
+        user.setUsername(request.getUsername());
+        user.setFullname(request.getFullname());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setScore(0);
+        return user;
+    }
+}
