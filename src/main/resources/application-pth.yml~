@@ -40,9 +40,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        jdbc:
-          time_zone: UTC
-
+      jdbc:
+        
 jwt:
   secret: 2cd3cdac25884e6837a7e06ed4eeae679201b200872a4175117d204568871394
   expiration: 86400000
