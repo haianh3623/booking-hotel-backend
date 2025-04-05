@@ -1,0 +1,35 @@
+package group.assignment.booking_hotel_backend.models;
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Booking extends BaseEntity{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer bookingId;
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
+
+    @ManyToOne
+    @JoinColumn(name = "bill_id", nullable = false)
+    private Bill bill;
+
+    @OneToMany(mappedBy="booking")
+    private List<Review> reviewList;
+
+}
