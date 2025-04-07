@@ -1,0 +1,8 @@
+package group.assignment.booking_hotel_backend.dto;
+
+public class HotelDto {
+    private Integer hotelId;
+    private String hotelName;
+    private AddressDTO address;
+    private Integer userId;
+}

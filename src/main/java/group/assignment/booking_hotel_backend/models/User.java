@@ -37,6 +37,9 @@ public class User extends BaseEntity{
     private List<Booking> bookingList;
 
     @OneToMany(mappedBy="user")
+    private List<Bill> billList;
+
+    @OneToMany(mappedBy="user")
     private List<Notification> notiList;
 
 

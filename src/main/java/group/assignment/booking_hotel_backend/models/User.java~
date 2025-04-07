@@ -4,6 +4,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Getter
 @Setter
@@ -44,6 +45,19 @@ public class User extends BaseEntity{
             roleList = new ArrayList<>();
         }
         roleList.add(role);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", fullName='" + fullName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", score=" + score +
+                '}';
     }
 }
 

@@ -10,4 +10,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public interface RoomService {
+    void saveRoom(Room room);
+    Room findById(Long id);
+    List<Room> findAll();
+    Page<Room> findAll(Pageable pageable);
+//    boolean isRoomAvailable(Long roomId, BookingDto bookingDto);
+    void deleteById(Long id);
+    void updateRoom(Long roomId, Room updatedRoom);
+//    List<Room> findRoomAvailable(BookingDto bookingDto);
+    List<Room> findRoomByGroup(String roomGroupName);
 }

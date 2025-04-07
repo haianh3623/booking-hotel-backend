@@ -16,7 +16,6 @@ public class Booking extends BaseEntity{
     private Integer bookingId;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
-    private String status;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

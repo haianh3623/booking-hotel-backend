@@ -35,14 +35,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()  // Mọi người có thể truy cập các endpoint đăng nhập/đăng ký
-                        .requestMatchers("/api/users/**").permitAll()  // Cho phép mọi người truy cập /api/users nếu cần
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")  // Chỉ ADMIN mới có quyền truy cập API này
-                        .requestMatchers("/api/hotel-owner/**").hasRole("HOTEL_OWNER")  // Chỉ HOTEL_OWNER mới có quyền truy cập API này
-                        .requestMatchers("/api/users/profile").hasRole("CUSTOMER")  // Chỉ CUSTOMER mới có quyền truy cập vào profile
-                                .anyRequest().authenticated()  // Tất cả các yêu cầu khác phải được xác thực
-//                        .requestMatchers("/api/users/**").permitAll() // Consider restricting some endpoints later
-//                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/hotel-owner/**").hasRole("HOTEL_OWNER")
+                        .requestMatchers("/api/user/profile").hasRole("CUSTOMER")
+                        .requestMatchers("/api/user/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
