@@ -21,6 +21,6 @@ public class Hotel extends BaseEntity{
     @JoinColumn(name="user_id")
     private User user;
 
-    @OneToMany(mappedBy="room")
+    @OneToMany(mappedBy="hotel")
     private List<Room> roomList;
 }
