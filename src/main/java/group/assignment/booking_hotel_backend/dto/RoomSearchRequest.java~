@@ -1,0 +1,19 @@
+package group.assignment.booking_hotel_backend.dto;
+
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Data
+public class SearchRequest {
+    private String area;
+    private LocalDate checkIn;
+    private LocalDate checkOut;
+    private int adults;
+    private int children;
+    private Double priceFrom;
+    private Double priceTo;
+    private String sortBy;
+    private List<String> services;
+}

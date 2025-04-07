@@ -9,6 +9,4 @@ public interface HotelService {
     List<Hotel> findAll();
     Hotel findById(Integer id);
     void deleteById(Integer id);
-    List<Hotel> findByUserId(Integer userId);
-
 }

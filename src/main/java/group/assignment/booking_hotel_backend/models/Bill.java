@@ -19,4 +19,8 @@ public class Bill extends BaseEntity{
 
     @OneToMany(mappedBy="bill")
     private List<Booking> bookingList;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

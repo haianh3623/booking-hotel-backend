@@ -183,4 +183,58 @@ public class BookingServiceImpl implements BookingService {
 
         return Math.min(totalStayPrice, timeBasedPrice);
     }
+
+
+
+
+//    private double calculateTotalPrice(BookingSearchRequest request, Room room) {
+//        double pricePerNight = room.getPricePerNight();
+//        double extraHourPrice = room.getExtraHourPrice();
+//        double extraAdult = room.getExtraAdult();
+//        int numChildrenFree = room.getNumChildrenFree();
+//        int standardOccupancy = room.getStandardOccupancy();
+//
+//        double priceExtra = 0;
+//        int numAdults = request.getAdults();
+//        int numChildren = request.getChildren();
+//
+//        if (numAdults > standardOccupancy) {
+//            priceExtra += (numAdults - standardOccupancy) * extraAdult;
+//        }
+//        if (numChildren > numChildrenFree) {
+//            priceExtra += (numChildren - numChildrenFree) * extraAdult;
+//        }
+//
+//        String checkInDateTime = request.getCheckInDate() + " " + request.getCheckInTime() + ":00";
+//        String checkOutDateTime = request.getCheckOutDate() + " " + request.getCheckOutTime() + ":00";
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        LocalDateTime checkInTime = LocalDateTime.parse(checkInDateTime, formatter);
+//        LocalDateTime checkOutTime = LocalDateTime.parse(checkOutDateTime, formatter);
+//        LocalDateTime standardCheckIn = LocalDateTime.of(checkInTime.toLocalDate(), LocalTime.of(14, 0));
+//        LocalDateTime standardCheckOut = LocalDateTime.of(checkOutTime.toLocalDate(), LocalTime.of(11, 0));
+//
+//
+//
+//        long earlyCheckInHours = ChronoUnit.HOURS.between(checkInTime, standardCheckIn);
+//        if (earlyCheckInHours < 0) earlyCheckInHours = 0;
+//        long lateCheckOutHours = ChronoUnit.HOURS.between(standardCheckOut, checkOutTime);
+//        if (lateCheckOutHours < 0) lateCheckOutHours = 0;
+//
+//        long totalDays = ChronoUnit.DAYS.between(checkInTime, checkOutTime);
+//        double totalPrice = totalDays * pricePerNight + (earlyCheckInHours + lateCheckOutHours) * extraHourPrice + priceExtra;
+//
+//        long totalComboHours = ChronoUnit.HOURS.between(checkInTime, checkOutTime);
+//        double comboPrice = 0;
+//
+//        if (totalComboHours >= 2) {
+//            comboPrice = room.getComboPrice2h() + extraHourPrice * (totalComboHours - 2);
+//        } else if (totalComboHours == 1) {
+//            comboPrice = room.getComboPrice2h();
+//        }
+//
+//        double finalPrice = Math.min(totalPrice, comboPrice + priceExtra);
+//
+//        return finalPrice;
+//    }
+
 }
