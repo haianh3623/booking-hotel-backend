@@ -15,7 +15,10 @@ public class Hotel extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer hotelId;
     private String hotelName;
-    private String address;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", referencedColumnName = "addressId")
+    private Address address;
 
     @ManyToOne
     @JoinColumn(name="user_id")
