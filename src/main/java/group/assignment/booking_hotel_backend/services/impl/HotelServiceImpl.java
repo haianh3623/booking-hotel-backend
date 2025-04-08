@@ -40,4 +40,14 @@ public class HotelServiceImpl implements HotelService {
     public List<Hotel> findByUserId(Integer userId) {
         return hotelRepository.findByUserUserId(userId);
     }
+
+    @Override
+    public List<String> getAllCities() {
+        return hotelRepository.findDistinctCities();
+    }
+
+    @Override
+    public List<String> getAllDistricts() {
+        return hotelRepository.findDistinctDistricts();
+    }
 }

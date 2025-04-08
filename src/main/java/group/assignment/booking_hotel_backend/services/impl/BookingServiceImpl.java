@@ -30,10 +30,19 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     @Override
     public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
-        List<Hotel> hotels = hotelRepository.findByAddressCityAndAddressDistrict(
-                request.getCity(), request.getDistrict()
-        );
-        System.out.println("1");
+        System.out.println(request);
+        List<Hotel> hotels;
+
+        if (request.getCity() != null && !request.getCity().isEmpty()
+                && request.getDistrict() != null && !request.getDistrict().isEmpty()) {
+            hotels = hotelRepository.findByAddressCityAndAddressDistrict(
+                    request.getCity(), request.getDistrict()
+            );
+        } else {
+            hotels = hotelRepository.findAll();
+        }
+
+        System.out.println("Hi1");
         for (Hotel hotel : hotels) {
             System.out.println(hotel.getHotelName());
         }
@@ -82,18 +91,17 @@ public class BookingServiceImpl implements BookingService {
                 if(request.getBedNumber() != room.getBedNumber()){
                     continue;
                 }
-                System.out.println("2");
+                System.out.println("Hi2");
                 for (String serviceName : request.getServices()) {
                     System.out.println(serviceName);
                 }
 
 
                 // 3. Kiểm tra xem phòng có bị trùng lịch không
-
                 boolean isAvailable = isAvailable(room, checkIn, checkOut);
                 if (!isAvailable) continue;
 
-                System.out.println(3);
+                System.out.println("Hi3");
                 System.out.println(isAvailable);
 
 
@@ -120,8 +128,11 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
-        System.out.println(6);
+        System.out.println("Hi4");
         System.out.println(results.size());
+        for (BookingSearchResponse result : results) {
+            System.out.println(result);
+        }
 
         // 6. Sắp xếp
         Comparator<BookingSearchResponse> comparator = Comparator.comparing(BookingSearchResponse::getPrice);
