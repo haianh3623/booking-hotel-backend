@@ -10,5 +10,6 @@ public interface HotelService {
     Hotel findById(Integer id);
     void deleteById(Integer id);
     List<Hotel> findByUserId(Integer userId);
-
+    List<String> getAllCities();
+    List<String> getAllDistricts();
 }

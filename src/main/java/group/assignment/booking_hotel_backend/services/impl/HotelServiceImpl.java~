@@ -35,4 +35,19 @@ public class HotelServiceImpl implements HotelService {
     public void deleteById(Integer id) {
         hotelRepository.deleteById(id);
     }
+
+    @Override
+    public List<Hotel> findByUserId(Integer userId) {
+        return hotelRepository.findByUserUserId(userId);
+    }
+
+    @Override
+    public List<String> getAllCities() {
+        return hotelRepository.findDistinctCities();
+    }
+
+    @Override
+    public List<String> getAllDistricts() {
+        return List.of();
+    }
 }

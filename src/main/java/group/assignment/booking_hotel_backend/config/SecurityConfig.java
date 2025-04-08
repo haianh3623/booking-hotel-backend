@@ -41,6 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/hotel-owner/**").hasRole("HOTEL_OWNER")
                         .requestMatchers("/api/user/profile").hasRole("CUSTOMER")
                         .requestMatchers("/api/booking/**").permitAll()
+                        .requestMatchers("/api/hotel/**").permitAll()
+                        .requestMatchers("/api/service/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
