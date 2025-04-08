@@ -2,6 +2,7 @@ package group.assignment.booking_hotel_backend.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,4 +18,6 @@ public class BookingSearchResponse {
     private String hotelName;
     private String address;
     private List<String> services;
+    private String checkIn;
+    private String checkOut;
 }

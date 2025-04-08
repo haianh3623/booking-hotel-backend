@@ -50,10 +50,36 @@ public class BookingServiceImpl implements BookingService {
                         .map(Service::getServiceName)
                         .collect(Collectors.toList());
 
+                String keyword = request.getInfoSearch();
+                if (keyword != null && !keyword.trim().isEmpty()) {
+                    String lowerKeyword = keyword.trim().toLowerCase();
+
+                    String hotelName = hotel.getHotelName() != null ? hotel.getHotelName().toLowerCase() : "";
+                    String roomName = room.getRoomName() != null ? room.getRoomName().toLowerCase() : "";
+                    String roomDesc = room.getDescription() != null ? room.getDescription().toLowerCase() : "";
+                    String city = hotel.getAddress().getCity() != null ? hotel.getAddress().getCity().toLowerCase() : "";
+                    String district = hotel.getAddress().getDistrict() != null ? hotel.getAddress().getDistrict().toLowerCase() : "";
+                    String ward = hotel.getAddress().getWard() != null ? hotel.getAddress().getWard().toLowerCase() : "";
+                    String specific = hotel.getAddress().getSpecificAddress() != null ? hotel.getAddress().getSpecificAddress().toLowerCase() : "";
+
+                    boolean match = hotelName.contains(lowerKeyword)
+                            || roomName.contains(lowerKeyword)
+                            || roomDesc.contains(lowerKeyword)
+                            || city.contains(lowerKeyword)
+                            || district.contains(lowerKeyword)
+                            || ward.contains(lowerKeyword)
+                            || specific.contains(lowerKeyword);
+
+                    if (!match) continue;
+                }
+
                 if (request.getServices() != null && !roomServiceNames.containsAll(request.getServices())) {
                     continue;
                 }
                 if(request.getAdults() + request.getChildren() > room.getMaxOccupancy()){
+                    continue;
+                }
+                if(request.getBedNumber() != room.getBedNumber()){
                     continue;
                 }
                 System.out.println("2");
@@ -88,6 +114,8 @@ public class BookingServiceImpl implements BookingService {
                         .hotelName(hotel.getHotelName())
                         .address(hotel.getAddress().getSpecificAddress())
                         .services(roomServiceNames)
+                        .checkIn(formatDateTime(checkIn))
+                        .checkOut(formatDateTime(checkOut))
                         .build());
             }
         }
@@ -103,6 +131,12 @@ public class BookingServiceImpl implements BookingService {
 
         results.sort(comparator);
         return results;
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+        return dateTime.format(formatter);
     }
 
     private LocalDateTime parseDateTime(String date, String time) {
