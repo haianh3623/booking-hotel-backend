@@ -120,6 +120,7 @@ public class BookingServiceImpl implements BookingService {
                         .roomName(room.getRoomName())
                         .price(price)
                         .hotelName(hotel.getHotelName())
+                        .roomImg(room.getRoomImg())
                         .address(hotel.getAddress().getSpecificAddress())
                         .services(roomServiceNames)
                         .checkIn(formatDateTime(checkIn))

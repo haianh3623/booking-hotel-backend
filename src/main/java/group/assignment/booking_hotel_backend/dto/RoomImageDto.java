@@ -8,9 +8,7 @@ import lombok.*;
 @Builder
 @ToString
 @Data
-public class HotelDto {
-    private Integer hotelId;
-    private String hotelName;
-    private AddressDto address;
-    private Integer userId;
+public class RoomImageDto {
+    private Integer imgId;
+    private String url;
 }

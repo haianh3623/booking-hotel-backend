@@ -14,9 +14,4 @@ public class RoomImageServiceImpl implements RoomImageService {
     public void save(RoomImage roomImage) {
         roomImageRepository.save(roomImage);
     }
-
-    @Override
-    public void findByRoomRoomId(Integer roomId) {
-        roomImageRepository.findByRoomRoomId(roomId);
-    }
 }

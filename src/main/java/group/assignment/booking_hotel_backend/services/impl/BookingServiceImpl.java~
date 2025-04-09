@@ -98,7 +98,6 @@ public class BookingServiceImpl implements BookingService {
 
 
                 // 3. Kiểm tra xem phòng có bị trùng lịch không
-
                 boolean isAvailable = isAvailable(room, checkIn, checkOut);
                 if (!isAvailable) continue;
 
