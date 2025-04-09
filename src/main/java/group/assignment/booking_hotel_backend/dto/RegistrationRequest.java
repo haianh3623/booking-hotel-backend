@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @ToString
+@Data
 public class RegistrationRequest {
     private String fullName;
     private String phone;

@@ -1,22 +1,22 @@
 package group.assignment.booking_hotel_backend.services;
 
+import group.assignment.booking_hotel_backend.dto.RoomDto;
 import group.assignment.booking_hotel_backend.models.Room;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 @Service
 public interface RoomService {
-    void saveRoom(Room room);
-    Room findById(Long id);
+    Room save(RoomDto roomDto);
+    Room update(Integer id, RoomDto roomDto);
+    boolean deleteById(Integer id);
+    Room findById(Integer id);
     List<Room> findAll();
-    Page<Room> findAll(Pageable pageable);
-//    boolean isRoomAvailable(Long roomId, BookingDto bookingDto);
-    void deleteById(Long id);
-    void updateRoom(Long roomId, Room updatedRoom);
-//    List<Room> findRoomAvailable(BookingDto bookingDto);
-    List<Room> findRoomByGroup(String roomGroupName);
+    String uploadImage(Integer roomId, MultipartFile file);
+
 }

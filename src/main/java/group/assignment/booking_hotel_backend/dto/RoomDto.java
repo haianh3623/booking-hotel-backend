@@ -1,0 +1,26 @@
+package group.assignment.booking_hotel_backend.dto;
+import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RoomDto {
+    private String roomName;
+    private Double area;
+    private Double comboPrice2h;
+    private Double pricePerNight;
+    private Double extraHourPrice;
+    private Integer standardOccupancy;
+    private Integer maxOccupancy;
+    private Integer numChildrenFree;
+    private MultipartFile roomImg;
+    private Integer bedNumber;
+    private Double extraAdult;
+    private String description;
+    private Integer hotelId;
+    private HotelDto hotelDto;
+    private List<Integer> serviceIds;
+}
