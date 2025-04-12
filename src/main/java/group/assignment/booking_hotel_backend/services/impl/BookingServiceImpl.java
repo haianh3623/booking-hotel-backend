@@ -1,18 +1,12 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
-import group.assignment.booking_hotel_backend.dto.BookingSearchRequest;
-import group.assignment.booking_hotel_backend.dto.BookingSearchResponse;
-import group.assignment.booking_hotel_backend.models.Booking;
-import group.assignment.booking_hotel_backend.models.Hotel;
-import group.assignment.booking_hotel_backend.models.Room;
-import group.assignment.booking_hotel_backend.models.Service;
-import group.assignment.booking_hotel_backend.repository.BookingRepository;
-import group.assignment.booking_hotel_backend.repository.HotelRepository;
-import group.assignment.booking_hotel_backend.repository.RoomRepository;
+import group.assignment.booking_hotel_backend.dto.*;
+import group.assignment.booking_hotel_backend.mapper.BookingMapper;
+import group.assignment.booking_hotel_backend.models.*;
+import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.BookingService;
 import lombok.RequiredArgsConstructor;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -28,6 +22,8 @@ public class BookingServiceImpl implements BookingService {
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+    private final BillRepository billRepository;
+    private final UserRepository userRepository;
     @Override
     public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
         System.out.println(request);
@@ -125,6 +121,9 @@ public class BookingServiceImpl implements BookingService {
                         .services(roomServiceNames)
                         .checkIn(formatDateTime(checkIn))
                         .checkOut(formatDateTime(checkOut))
+                        .adults(request.getAdults())
+                        .children(request.getChildren())
+                        .bedNumber(request.getBedNumber())
                         .build());
             }
         }
@@ -144,6 +143,118 @@ public class BookingServiceImpl implements BookingService {
         results.sort(comparator);
         return results;
     }
+
+    @Override
+    public BookingResponseDto createBooking(BookingRequestDto request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        Bill bill = null;
+        if (request.getBillId() != null) {
+            bill = billRepository.findById(request.getBillId())
+                    .orElseThrow(() -> new RuntimeException("Bill not found"));
+        }
+
+        Booking booking = Booking.builder()
+                .checkIn(request.getCheckIn())
+                .checkOut(request.getCheckOut())
+                .price(request.getPrice())
+                .status(BookingStatus.PENDING)
+                .user(user)
+                .room(room)
+                .bill(bill)
+                .build();
+
+        Booking saved = bookingRepository.save(booking);
+        return BookingMapper.mapToBookingResponseDto(saved, new BookingResponseDto());
+    }
+
+    @Override
+    public List<Booking> findAll() {
+        return bookingRepository.findAll();
+    }
+
+//    @Override
+//    public BookingResponseDto findById(Integer id) {
+//        Booking booking = bookingRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Booking not found"));
+//        return BookingMapper.mapToBookingResponseDto(booking, new BookingResponseDto());
+//    }
+
+    @Override
+    public Booking findById(Integer id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        return booking;
+    }
+
+    @Override
+    public Booking updateBooking(Integer id, BookingRequestDto request) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setCheckIn(request.getCheckIn());
+        booking.setCheckOut(request.getCheckOut());
+        booking.setPrice(request.getPrice());
+
+        if (request.getUserId() != null) {
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            booking.setUser(user);
+        }
+
+        if (request.getRoomId() != null) {
+            Room room = roomRepository.findById(request.getRoomId())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+            booking.setRoom(room);
+        }
+
+        if (request.getBillId() != null) {
+            Bill bill = billRepository.findById(request.getBillId())
+                    .orElseThrow(() -> new RuntimeException("Bill not found"));
+            booking.setBill(bill);
+        }
+
+        return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Booking update(Booking booking) {
+        Booking existing = bookingRepository.findById(booking.getBookingId())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        existing.setCheckIn(booking.getCheckIn());
+        existing.setCheckOut(booking.getCheckOut());
+        existing.setPrice(booking.getPrice());
+        existing.setStatus(booking.getStatus());
+        if (booking.getUser() != null) {
+            existing.setUser(booking.getUser());
+        }
+        if (booking.getRoom() != null) {
+            existing.setRoom(booking.getRoom());
+        }
+        existing.setBill(booking.getBill());
+        return bookingRepository.save(existing);
+    }
+
+
+    @Override
+    public void deleteById(Integer id) {
+        bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public Booking updateBookingStatus(Integer bookingId, BookingStatus newStatus) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setStatus(newStatus);
+        Booking updatedBooking = bookingRepository.save(booking);
+        return updatedBooking;
+    }
+
+
 
     private String formatDateTime(LocalDateTime dateTime) {
         if (dateTime == null) return "";
@@ -229,4 +340,7 @@ public class BookingServiceImpl implements BookingService {
 
         return Math.min(totalStayPrice, timeBasedPrice);
     }
+
+
+
 }

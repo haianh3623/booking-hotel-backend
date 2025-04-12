@@ -1,0 +1,23 @@
+package group.assignment.booking_hotel_backend.dto;
+
+import group.assignment.booking_hotel_backend.models.BookingStatus;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class BookingDto {
+    private Integer bookingId;
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
+    private Double price;
+    private BookingStatus status = BookingStatus.PENDING;
+    private Integer userId;
+    private Integer roomId;
+    private Integer billId;
+}
