@@ -22,4 +22,7 @@ public class BookingSearchResponse {
     private List<String> services;
     private String checkIn;
     private String checkOut;
+    private int adults;
+    private int children;
+    private int bedNumber;
 }

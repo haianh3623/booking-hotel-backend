@@ -1,8 +1,5 @@
 package group.assignment.booking_hotel_backend.controller;
 
-import group.assignment.booking_hotel_backend.dto.UserDto;
-import group.assignment.booking_hotel_backend.mapper.UserMapper;
-import group.assignment.booking_hotel_backend.models.User;
 import group.assignment.booking_hotel_backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +31,9 @@ public class UserController {
         return ResponseEntity.ok("Welcome to customer profile");
     }
 
-    @GetMapping("/info")
-    public ResponseEntity<?> getUserLogin(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = userService.findByUsername(userDetails.getUsername());
-        UserDto userDto = UserMapper.mapToUserDto(user, new UserDto());
-        return ResponseEntity.ok(userDto);
+    @GetMapping("/check")
+    public ResponseEntity<?> getUserProfile(Authentication authentication) {
+        UserDetails user = (UserDetails) authentication.getPrincipal();
+        return ResponseEntity.ok("User đang đăng nhập: " + user.getUsername());
     }
 }
