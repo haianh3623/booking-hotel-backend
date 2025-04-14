@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 public class Review extends BaseEntity{
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer reviewId;
     private String content;
     private Integer rating;

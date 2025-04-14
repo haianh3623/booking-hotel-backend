@@ -19,4 +19,5 @@ public interface BookingService {
     Booking update(Booking booking);
     void deleteById(Integer id);
     Booking updateBookingStatus(Integer bookingId, BookingStatus newStatus);
+    List<Booking> findByUserId(Integer userId);
 }

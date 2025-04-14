@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface BillService {
     List<Bill> findAll();
-    Bill findById(Integer id);
+    Optional<Bill> findById(Integer id);
     Bill save(Bill bill);
     Bill update(Integer id, Bill bill);
     void deleteById(Integer id);

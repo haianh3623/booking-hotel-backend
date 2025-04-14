@@ -71,4 +71,19 @@ public class BookingController {
         Booking updated = bookingService.updateBookingStatus(id, status);
         return ResponseEntity.ok(BookingMapper.mapToBookingResponseDto(updated, new BookingResponseDto()));
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BookingResponseDto>> getBookingsByUserId(@PathVariable Integer userId) {
+        try {
+            List<Booking> bookings = bookingService.findByUserId(userId);
+            List<BookingResponseDto> bookingDtos = new ArrayList<>();
+            for (Booking booking : bookings) {
+                BookingResponseDto responseDto = BookingMapper.mapToBookingResponseDto(booking, new BookingResponseDto());
+                bookingDtos.add(responseDto);
+            }
+            return ResponseEntity.ok(bookingDtos);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 }
