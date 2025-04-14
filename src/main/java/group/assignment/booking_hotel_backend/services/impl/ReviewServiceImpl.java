@@ -1,5 +1,6 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
+import group.assignment.booking_hotel_backend.dto.ReviewRequestDto;
 import group.assignment.booking_hotel_backend.models.Review;
 import group.assignment.booking_hotel_backend.repository.ReviewRepository;
 import group.assignment.booking_hotel_backend.services.ReviewService;
@@ -14,8 +15,13 @@ public class ReviewServiceImpl implements ReviewService {
     private ReviewRepository reviewRepository;
 
     @Override
-    public void save(Review review) {
-        reviewRepository.save(review);
+    public Review save(Review review) {
+        return reviewRepository.save(review);
+    }
+
+    @Override
+    public void save(ReviewRequestDto request) {
+
     }
 
     @Override
@@ -39,5 +45,22 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void deleteById(Integer id) {
         reviewRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Review> getReviewsByBookingId(Integer bookingId) {
+        return reviewRepository.findByBookingBookingId(bookingId);
+    }
+
+    @Override
+    public Review update(Integer reviewId, ReviewRequestDto review) {
+        Optional<Review> existingReviewOpt = reviewRepository.findById(reviewId);
+        if (existingReviewOpt.isPresent()) {
+            Review existingReview = existingReviewOpt.get();
+            existingReview.setContent(review.getContent());
+            existingReview.setRating(review.getRating());
+            return reviewRepository.save(existingReview);
+        }
+        return null;
     }
 }

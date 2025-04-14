@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import group.assignment.booking_hotel_backend.dto.CreateRoomRequest;
 import group.assignment.booking_hotel_backend.dto.CreateRoomResponse;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
+import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
 import group.assignment.booking_hotel_backend.mapper.RoomMapper;
 import group.assignment.booking_hotel_backend.models.*;
 import group.assignment.booking_hotel_backend.repository.*;
-import group.assignment.booking_hotel_backend.services.FilesStorageService;
-import group.assignment.booking_hotel_backend.services.HotelService;
-import group.assignment.booking_hotel_backend.services.RoomImageService;
-import group.assignment.booking_hotel_backend.services.RoomService;
+import group.assignment.booking_hotel_backend.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +28,8 @@ public class RoomController {
     private final RoomImageService roomImageService;
     private final FilesStorageService filesStorageService;
     private final ObjectMapper objectMapper;
+    private final BookingService bookingService;
+
 
     @PostMapping("/create-with-images")
     public ResponseEntity<?> createRoomWithImages(
@@ -95,6 +95,19 @@ public class RoomController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Failed to create room: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<?> getRoomByBookingId(@PathVariable Integer bookingId) {
+        try {
+            Booking booking = bookingService.findById(bookingId);
+            if (booking == null || booking.getRoom() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(RoomMapper.mapToRoomDto(booking.getRoom(), new RoomResponseDto()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error retrieving room: " + e.getMessage());
         }
     }
 }

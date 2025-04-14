@@ -48,6 +48,6 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public void deleteById(Integer id) {
-        billRepository.deleteById(id);
+
     }
 }

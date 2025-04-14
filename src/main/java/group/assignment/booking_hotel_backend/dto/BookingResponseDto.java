@@ -18,4 +18,5 @@ public class BookingResponseDto {
     private Integer userId;
     private Integer roomId;
     private Integer billId;
+    private LocalDateTime createdAt;
 }

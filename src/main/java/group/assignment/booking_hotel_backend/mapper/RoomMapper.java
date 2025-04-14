@@ -72,4 +72,39 @@ public class RoomMapper {
         return response;
     }
 
+
+    public static RoomResponseDto mapToRoomDto(Room room, RoomResponseDto roomDto) {
+        roomDto.setRoomName(room.getRoomName());
+        roomDto.setArea(room.getArea());
+        roomDto.setComboPrice2h(room.getComboPrice2h());
+        roomDto.setPricePerNight(room.getPricePerNight());
+        roomDto.setExtraHourPrice(room.getExtraHourPrice());
+        roomDto.setStandardOccupancy(room.getStandardOccupancy());
+        roomDto.setMaxOccupancy(room.getMaxOccupancy());
+        roomDto.setNumChildrenFree(room.getNumChildrenFree());
+        roomDto.setRoomImg(room.getRoomImg());
+        roomDto.setBedNumber(room.getBedNumber());
+        roomDto.setExtraAdult(room.getExtraAdult());
+        roomDto.setDescription(room.getDescription());
+        roomDto.setHotelDto(HotelMapper.mapToHotelDto(room.getHotel(), new HotelDto()));
+        if (room.getServiceList() != null) {
+            List<ServiceDto> serviceDtos = new ArrayList<>();
+            for (Service service : room.getServiceList()){
+                ServiceDto serviceDto = ServiceMapper.mapToServiceDto(service, new ServiceDto());
+                serviceDtos.add(serviceDto);
+            }
+            roomDto.setServiceDtoList(serviceDtos);
+        }
+
+        List<RoomImageDto> imageUrls = new ArrayList<>();
+        if (room.getRoomImageList() != null) {
+            List<RoomImage> roomImageList = room.getRoomImageList();
+            for (RoomImage roomImage : roomImageList) {
+                RoomImageDto roomImageDto = RoomImageMapper.mapToRoomImageDto(roomImage, new RoomImageDto());
+                imageUrls.add(roomImageDto);
+            }
+            roomDto.setRoomImageUrls(imageUrls);
+        }
+        return roomDto;
+    }
 }

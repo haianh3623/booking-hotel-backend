@@ -9,4 +9,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByRoomRoomIdAndCheckOutAfterAndCheckInBefore(
             Integer roomId, LocalDateTime checkIn, LocalDateTime checkOut
     );
+
+    List<Booking> findByUserUserId(Integer userId);
 }

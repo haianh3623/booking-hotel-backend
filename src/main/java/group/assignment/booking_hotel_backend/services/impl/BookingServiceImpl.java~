@@ -256,7 +256,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findByUserId(Integer userId) {
-        return bookingRepository.findByUserUserId(userId);
+        return List.of();
     }
 
 
