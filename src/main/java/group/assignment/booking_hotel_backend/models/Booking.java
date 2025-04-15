@@ -2,6 +2,7 @@ package group.assignment.booking_hotel_backend.models;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity

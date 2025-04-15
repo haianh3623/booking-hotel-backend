@@ -157,6 +157,17 @@ public class BookingServiceImpl implements BookingService {
                     .orElseThrow(() -> new RuntimeException("Bill not found"));
         }
 
+        if(bill == null){
+            bill = Bill.builder()
+                    .totalPrice(request.getPrice())
+                    .paidStatus(false)
+                    .user(user)
+                    .build();
+            bill = billRepository.save(bill);
+            System.out.println("bill" + bill.getBillId());
+        }
+        System.out.println("bill" + bill.getBillId());
+
         Booking booking = Booking.builder()
                 .checkIn(request.getCheckIn())
                 .checkOut(request.getCheckOut())

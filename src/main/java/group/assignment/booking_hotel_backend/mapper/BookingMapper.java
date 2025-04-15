@@ -3,6 +3,9 @@ package group.assignment.booking_hotel_backend.mapper;
 import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.models.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BookingMapper {
     public static BookingResponseDto mapToBookingResponseDto(Booking booking, BookingResponseDto response) {
         response.setBookingId(booking.getBookingId());
@@ -14,6 +17,14 @@ public class BookingMapper {
         response.setRoomId(booking.getRoom().getRoomId());
         response.setBillId(booking.getBill() != null ? booking.getBill().getBillId() : null);
         response.setCreatedAt(booking.getCreatedAt());
+        List<Integer> reviewIdList = new ArrayList<>();
+        List<Review> reviewList = booking.getReviewList();
+        if (reviewList != null) {
+            for (Review review : reviewList){
+                reviewIdList.add(review.getReviewId());
+            }
+        }
+        response.setReviewIdList(reviewIdList);
         return response;
     }
 

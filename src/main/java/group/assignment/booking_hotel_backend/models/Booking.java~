@@ -2,6 +2,7 @@ package group.assignment.booking_hotel_backend.models;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,9 +30,9 @@ public class Booking extends BaseEntity{
     private Room room;
 
     @ManyToOne
-    @JoinColumn(name = "bill_id", nullable = true)
+    @JoinColumn(name = "bill_id")
     private Bill bill;
 
     @OneToMany(mappedBy="booking")
-    private List<Review> reviewList;
+    private List<Review> reviewList = new ArrayList<>();
 }

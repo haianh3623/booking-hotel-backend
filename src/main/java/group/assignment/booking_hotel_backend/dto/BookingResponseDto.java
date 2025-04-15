@@ -1,6 +1,8 @@
 package group.assignment.booking_hotel_backend.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.*;
 
 @Data
@@ -19,4 +21,5 @@ public class BookingResponseDto {
     private Integer roomId;
     private Integer billId;
     private LocalDateTime createdAt;
+    private List<Integer> reviewIdList;
 }

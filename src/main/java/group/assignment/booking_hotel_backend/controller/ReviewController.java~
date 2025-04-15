@@ -38,7 +38,7 @@ public class ReviewController {
         return ResponseEntity.ok(ReviewMapper.mapToReviewResponseDto(review, new ReviewResponseDto()));
     }
 
-    @PostMapping("/listId")
+    @GetMapping("/listId")
     public ResponseEntity<List<ReviewResponseDto>> getReviewByListId(@RequestBody List<Integer> reviewId) {
         List<ReviewResponseDto> reviewList = new ArrayList<>();
         for (Integer id : reviewId) {
