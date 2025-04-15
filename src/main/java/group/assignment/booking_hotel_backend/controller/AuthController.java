@@ -45,9 +45,12 @@ public class AuthController {
             throw new Exception("Incorrect username or password", e);
         }
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
+        String username = userDetails.getUsername();
+        Integer userId = userService.findByUsername(username).getUserId();
         final String jwt = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        return ResponseEntity.ok(new AuthResponse(jwt, userId));
     }
+
 
     @PostMapping("/register")
     public ResponseEntity<UserDto> registerUser(@RequestBody RegistrationRequest request) {
