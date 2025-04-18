@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/booking/**").permitAll()
                         .requestMatchers("/api/hotel/**").permitAll()
                         .requestMatchers("/api/service/**").permitAll()
+                        .requestMatchers("api/search-suggestions").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
