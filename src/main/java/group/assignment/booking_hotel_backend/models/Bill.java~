@@ -17,8 +17,7 @@ public class Bill extends BaseEntity{
     private Double totalPrice;
     private Boolean paidStatus;
 
-//    @OneToMany(mappedBy="bill")
-    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy="bill")
     private List<Booking> bookingList;
 
     @ManyToOne
