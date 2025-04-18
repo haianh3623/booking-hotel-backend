@@ -25,5 +25,4 @@ public class BookingSearchResponse {
     private int adults;
     private int children;
     private int bedNumber;
-    private Double rating;
 }
