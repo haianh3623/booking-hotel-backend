@@ -7,5 +7,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class ReviewStatsDto {
     private Long totalReviews;
-    private Double percentageChange;
+    private Double reviewCountChangePercent;
+    private Double averageRating;
+    private Double averageRatingChangePercent; 
 }
+

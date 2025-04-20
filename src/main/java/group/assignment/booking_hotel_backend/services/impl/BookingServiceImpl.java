@@ -543,4 +543,9 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> getCurrentBookingForHotel(int hotelId) {
        return bookingRepository.findConfirmedBookingsByHotelId(hotelId);
     }
+
+    @Override
+    public List<Booking> getAllBookingByHotelId(int hotelId) {
+        return bookingRepository.findByRoomHotelHotelId(hotelId);
+    }
 }

@@ -78,14 +78,27 @@ public class ReviewServiceImpl implements ReviewService {
         int lastMonth = currentMonth == 1 ? 12 : currentMonth - 1;
         int lastYear = currentMonth == 1 ? currentYear - 1 : currentYear;
     
+        // Số lượng đánh giá
         Long currentCount = reviewRepository.countReviewsByHotelIdAndMonth(hotelId, currentMonth, currentYear);
         Long lastCount = reviewRepository.countReviewsByHotelIdAndMonth(hotelId, lastMonth, lastYear);
     
-        double change = (lastCount == 0)
+        // Tính phần trăm thay đổi số lượng đánh giá
+        double reviewCountChange = (lastCount == 0)
             ? (currentCount > 0 ? 100.0 : 0.0)
             : ((currentCount - lastCount) / (double) lastCount) * 100.0;
     
-        return new ReviewStatsDto(currentCount, change);
+        // Trung bình rating
+        Double currentAvg = reviewRepository.averageRatingByHotelAndMonth(hotelId, currentMonth, currentYear);
+        Double lastAvg = reviewRepository.averageRatingByHotelAndMonth(hotelId, lastMonth, lastYear);
+    
+        if (currentAvg == null) currentAvg = 0.0;
+        if (lastAvg == null) lastAvg = 0.0;
+    
+        // Tính phần trăm thay đổi rating trung bình
+        double avgRatingChange = (lastAvg == 0)
+            ? (currentAvg > 0 ? 100.0 : 0.0)
+            : ((currentAvg - lastAvg) / lastAvg) * 100.0;
+    
+        return new ReviewStatsDto(currentCount, reviewCountChange, currentAvg, avgRatingChange);
     }
-
 }
