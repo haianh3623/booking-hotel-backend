@@ -5,6 +5,8 @@ public class SearchEntry {
     private String type;
     private String value;
 
+    public SearchEntry(){}
+
     public SearchEntry(String type, String value) {
         this.type = type;
         this.value = value;

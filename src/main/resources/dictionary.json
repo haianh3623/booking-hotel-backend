@@ -1,0 +1,57 @@
+[
+  { "type": "location", "value": "Hà Nội" },
+  { "type": "location", "value": "Hồ Hoàn Kiếm" },
+  { "type": "location", "value": "Văn Miếu - Quốc Tử Giám" },
+  { "type": "location", "value": "Lăng Chủ tịch Hồ Chí Minh" },
+  { "type": "location", "value": "Chùa Trấn Quốc" },
+
+  { "type": "location", "value": "TP. Hồ Chí Minh" },
+  { "type": "location", "value": "Nhà thờ Đức Bà" },
+  { "type": "location", "value": "Chợ Bến Thành" },
+  { "type": "location", "value": "Dinh Độc Lập" },
+  { "type": "location", "value": "Phố đi bộ Nguyễn Huệ" },
+
+  { "type": "location", "value": "Đà Nẵng" },
+  { "type": "location", "value": "Cầu Rồng" },
+  { "type": "location", "value": "Bà Nà Hills" },
+  { "type": "location", "value": "Bãi biển Mỹ Khê" },
+  { "type": "location", "value": "Ngũ Hành Sơn" },
+
+  { "type": "location", "value": "Thừa Thiên Huế" },
+  { "type": "location", "value": "Kinh thành Huế" },
+  { "type": "location", "value": "Chùa Thiên Mụ" },
+  { "type": "location", "value": "Lăng Tự Đức" },
+  { "type": "location", "value": "Sông Hương" },
+
+  { "type": "location", "value": "Quảng Ninh" },
+  { "type": "location", "value": "Vịnh Hạ Long" },
+  { "type": "location", "value": "Đảo Tuần Châu" },
+  { "type": "location", "value": "Bãi Cháy" },
+
+  { "type": "location", "value": "Lào Cai" },
+  { "type": "location", "value": "Thị trấn Sa Pa" },
+  { "type": "location", "value": "Đỉnh Fansipan" },
+  { "type": "location", "value": "Bản Cát Cát" },
+
+  { "type": "location", "value": "Ninh Bình" },
+  { "type": "location", "value": "Tràng An" },
+  { "type": "location", "value": "Tam Cốc - Bích Động" },
+  { "type": "location", "value": "Chùa Bái Đính" },
+  { "type": "location", "value": "Cố đô Hoa Lư" },
+
+  { "type": "location", "value": "Khánh Hòa" },
+  { "type": "location", "value": "Nha Trang" },
+  { "type": "location", "value": "Vinpearl Land" },
+  { "type": "location", "value": "Tháp Bà Ponagar" },
+  { "type": "location", "value": "Hòn Mun" },
+
+  { "type": "location", "value": "Bình Thuận" },
+  { "type": "location", "value": "Mũi Né" },
+  { "type": "location", "value": "Đồi Cát Bay" },
+  { "type": "location", "value": "Suối Tiên" },
+
+  { "type": "location", "value": "Kiên Giang" },
+  { "type": "location", "value": "Đảo Phú Quốc" },
+  { "type": "location", "value": "Bãi Sao" },
+  { "type": "location", "value": "Dinh Cậu" }
+]

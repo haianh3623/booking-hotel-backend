@@ -1,27 +1,48 @@
 package group.assignment.booking_hotel_backend.services;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import group.assignment.booking_hotel_backend.models.SearchEntry;
 import group.assignment.booking_hotel_backend.utils.TextUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class DictionaryService {
 
-    private final List<SearchEntry> dictionary;
+    private List<SearchEntry> dictionary;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final File dictionaryFile;
 
     public DictionaryService() {
-        dictionary = List.of(
-                new SearchEntry("location", "Đà Nẵng"),
-                new SearchEntry("location", "Hà Nội"),
-                new SearchEntry("hotel", "Vinpearl Resort"),
-                new SearchEntry("hotel", "Fusion Suites"),
-                new SearchEntry("amenity", "WiFi miễn phí"),
-                new SearchEntry("amenity", "Hồ bơi"),
-                new SearchEntry("amenity", "Bữa sáng miễn phí")
-        );
+        try {
+            // Đọc file từ resources
+            URL resourceUrl = getClass().getClassLoader().getResource("dictionary.json");
+            if (resourceUrl == null) throw new RuntimeException("Không tìm thấy dictionary.json");
+
+            dictionaryFile = new File(resourceUrl.toURI());
+            dictionary = mapper.readValue(dictionaryFile, new TypeReference<>() {});
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi load dictionary.json", e);
+        }
+    }
+
+    public List<SearchEntry> getAll() {
+        return dictionary;
+    }
+
+    public void addEntry(SearchEntry newEntry) {
+        try {
+            dictionary.add(newEntry);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(dictionaryFile, dictionary);
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể ghi vào dictionary.json", e);
+        }
     }
 
     public List<SearchEntry> search(String query) {
