@@ -34,5 +34,11 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     """)
     List<Booking> findConfirmedBookingsByHotelId(@Param("hotelId") Integer hotelId);
 
+    @Query("""
+        SELECT b FROM Booking b 
+        JOIN b.room r 
+        WHERE r.hotel.hotelId = :hotelId
+    """)
+    List<Booking> findByRoomHotelHotelId( @Param("hotelId") Integer hotelId);
 
 }

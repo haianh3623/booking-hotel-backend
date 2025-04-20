@@ -84,12 +84,12 @@ public class HotelOwnerController {
         return ResponseEntity.ok(roomDtos);
     }
 
-    @GetMapping("/review/stats/monthly")
-    public ResponseEntity<ReviewStatsDto> getReviewStatsByHotel(@RequestParam Integer hotelId) {
+    @GetMapping("/review/stats/monthly/{hotelId}")
+    public ResponseEntity<ReviewStatsDto> getReviewStatsByHotel(@PathVariable Integer hotelId) {
         return ResponseEntity.ok(reviewService.getMonthlyReviewStats(hotelId));
     }
 
-    @GetMapping("/booking/stats/per-day")
+    @GetMapping("/booking/stats/per-day/{hotelId}")
     public ResponseEntity<List<BookingStatsDto>> getBookingStats(
         @RequestParam Integer hotelId,
         @RequestParam(defaultValue = "7") int n
@@ -98,10 +98,20 @@ public class HotelOwnerController {
         return ResponseEntity.ok(stats);
     }
 
-    @GetMapping("/booking/{hotelId}")
+    @GetMapping("/current-booking/{hotelId}")
     public List<BookingResponseDto> getCurrentBooking(@PathVariable Integer hotelId) {
         List<BookingResponseDto> bookingResponseDtos = new ArrayList<>();
         List<Booking> bookings = bookingService.getCurrentBookingForHotel(hotelId);
+        for (Booking b: bookings) {
+            bookingResponseDtos.add(BookingMapper.mapToBookingResponseDto(b, new BookingResponseDto()));
+        }
+        return bookingResponseDtos;
+    }
+
+    @GetMapping("/booking/{hotelId}")
+    public List<BookingResponseDto> getAllBookings(@PathVariable Integer hotelId) {
+        List<BookingResponseDto> bookingResponseDtos = new ArrayList<>();
+        List<Booking> bookings = bookingService.getAllBookingByHotelId(hotelId);
         for (Booking b: bookings) {
             bookingResponseDtos.add(BookingMapper.mapToBookingResponseDto(b, new BookingResponseDto()));
         }

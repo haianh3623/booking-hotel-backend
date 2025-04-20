@@ -18,4 +18,19 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
         @Param("month") int month,
         @Param("year") int year
     );
+
+    @Query("""
+        SELECT AVG(r.rating) FROM Review r 
+        JOIN r.booking b 
+        JOIN b.room ro 
+        WHERE ro.hotel.hotelId = :hotelId 
+        AND MONTH(r.createdAt) = :month 
+        AND YEAR(r.createdAt) = :year
+    """)
+    Double averageRatingByHotelAndMonth(
+        @Param("hotelId") Integer hotelId,
+        @Param("month") int month,
+        @Param("year") int year
+    );
+
 }

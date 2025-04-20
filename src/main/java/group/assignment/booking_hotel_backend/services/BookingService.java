@@ -24,4 +24,5 @@ public interface BookingService {
     List<Booking> findByUserId(Integer userId);
     List<BookingStatsDto> getBookingStatsLastNDaysForHotel(int hotelId, int days);
     List<Booking> getCurrentBookingForHotel(int hotelId);
+    List<Booking> getAllBookingByHotelId(int hotelId);
 }
