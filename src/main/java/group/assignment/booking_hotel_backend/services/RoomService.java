@@ -18,5 +18,5 @@ public interface RoomService {
     boolean deleteById(Integer id);
     Room findById(Integer id);
     List<Room> findAll();
-
+    List<Room> findByHotelId(Integer hotelId);
 }

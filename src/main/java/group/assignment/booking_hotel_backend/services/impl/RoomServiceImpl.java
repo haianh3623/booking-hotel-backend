@@ -110,4 +110,9 @@ public class RoomServiceImpl implements RoomService {
     public List<Room> findAll() {
         return roomRepository.findAll();
     }
+
+    @Override
+    public List<Room> findByHotelId(Integer hotelId) {
+        return roomRepository.findByHotelId(hotelId);
+    }
 }
