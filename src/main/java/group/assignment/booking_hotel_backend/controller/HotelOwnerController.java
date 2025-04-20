@@ -1,13 +1,17 @@
 package group.assignment.booking_hotel_backend.controller;
-
-import group.assignment.booking_hotel_backend.dto.HotelDto;
+import group.assignment.booking_hotel_backend.dto.BookingResponseDto;
+import group.assignment.booking_hotel_backend.dto.BookingStatsDto;
+import group.assignment.booking_hotel_backend.dto.ReviewStatsDto;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
 import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
-import group.assignment.booking_hotel_backend.mapper.HotelMapper;
+import group.assignment.booking_hotel_backend.mapper.BookingMapper;
 import group.assignment.booking_hotel_backend.mapper.RoomMapper;
+import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.Hotel;
 import group.assignment.booking_hotel_backend.models.Room;
+import group.assignment.booking_hotel_backend.services.BookingService;
 import group.assignment.booking_hotel_backend.services.HotelService;
+import group.assignment.booking_hotel_backend.services.ReviewService;
 import group.assignment.booking_hotel_backend.services.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api/hotel-owner")
@@ -24,6 +27,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HotelOwnerController {
     private final HotelService hotelService;
     private final RoomService roomService;
+    private final ReviewService reviewService;
+    private final BookingService bookingService;
 
     @PreAuthorize("hasRole('HOTEL_OWNER')")
     @GetMapping("/")
@@ -77,5 +82,29 @@ public class HotelOwnerController {
             roomDtos.add(RoomMapper.mapToRoomDto(room, new RoomResponseDto()));
         }
         return ResponseEntity.ok(roomDtos);
+    }
+
+    @GetMapping("/review/stats/monthly")
+    public ResponseEntity<ReviewStatsDto> getReviewStatsByHotel(@RequestParam Integer hotelId) {
+        return ResponseEntity.ok(reviewService.getMonthlyReviewStats(hotelId));
+    }
+
+    @GetMapping("/booking/stats/per-day")
+    public ResponseEntity<List<BookingStatsDto>> getBookingStats(
+        @RequestParam Integer hotelId,
+        @RequestParam(defaultValue = "7") int n
+    ) {
+        List<BookingStatsDto> stats = bookingService.getBookingStatsLastNDaysForHotel(hotelId, n);
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/booking/{hotelId}")
+    public List<BookingResponseDto> getCurrentBooking(@PathVariable Integer hotelId) {
+        List<BookingResponseDto> bookingResponseDtos = new ArrayList<>();
+        List<Booking> bookings = bookingService.getCurrentBookingForHotel(hotelId);
+        for (Booking b: bookings) {
+            bookingResponseDtos.add(BookingMapper.mapToBookingResponseDto(b, new BookingResponseDto()));
+        }
+        return bookingResponseDtos;
     }
 }
