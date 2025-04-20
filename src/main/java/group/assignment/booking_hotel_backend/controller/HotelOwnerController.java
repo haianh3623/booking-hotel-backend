@@ -2,7 +2,9 @@ package group.assignment.booking_hotel_backend.controller;
 
 import group.assignment.booking_hotel_backend.dto.HotelDto;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
+import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
 import group.assignment.booking_hotel_backend.mapper.HotelMapper;
+import group.assignment.booking_hotel_backend.mapper.RoomMapper;
 import group.assignment.booking_hotel_backend.models.Hotel;
 import group.assignment.booking_hotel_backend.models.Room;
 import group.assignment.booking_hotel_backend.services.HotelService;
@@ -12,10 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/hotel-owner")
@@ -68,8 +69,13 @@ public class HotelOwnerController {
         return ResponseEntity.ok(roomService.findById(id));
     }
 
-    @GetMapping("/rooms")
-    public ResponseEntity<List<Room>> getAllRooms() {
-        return ResponseEntity.ok(roomService.findAll());
+    @GetMapping("/rooms/{hotelId}")
+    public ResponseEntity<List<RoomResponseDto>> getAllRooms(@PathVariable Integer hotelId) {
+        List<Room> rooms = roomService.findByHotelId(hotelId);
+        List<RoomResponseDto> roomDtos = new ArrayList<>();
+        for (Room room : rooms) {
+            roomDtos.add(RoomMapper.mapToRoomDto(room, new RoomResponseDto()));
+        }
+        return ResponseEntity.ok(roomDtos);
     }
 }
