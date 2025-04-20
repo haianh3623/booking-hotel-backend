@@ -1,0 +1,113 @@
+package group.assignment.booking_hotel_backend.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import group.assignment.booking_hotel_backend.dto.CreateRoomRequest;
+import group.assignment.booking_hotel_backend.dto.CreateRoomResponse;
+import group.assignment.booking_hotel_backend.dto.RoomDto;
+import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
+import group.assignment.booking_hotel_backend.mapper.RoomMapper;
+import group.assignment.booking_hotel_backend.models.*;
+import group.assignment.booking_hotel_backend.repository.*;
+import group.assignment.booking_hotel_backend.services.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/room")
+@RequiredArgsConstructor
+public class RoomController {
+
+    private final RoomService roomService;
+    private final HotelService hotelService;
+    private final ServiceRepository serviceRepository;
+    private final RoomImageService roomImageService;
+    private final FilesStorageService filesStorageService;
+    private final ObjectMapper objectMapper;
+    private final BookingService bookingService;
+
+
+    @PostMapping("/create-with-images")
+    public ResponseEntity<?> createRoomWithImages(
+            @RequestPart("roomInfo") String roomInfoJson,
+            @RequestPart("mainImage") MultipartFile mainImage,
+            @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages
+    ) {
+        try {
+            // 1. Chuyển JSON thành DTO
+            CreateRoomRequest request = objectMapper.readValue(roomInfoJson, CreateRoomRequest.class);
+
+            // 2. Tạo room
+            Room room = new Room();
+            room.setRoomName(request.getRoomName());
+            room.setArea(request.getArea());
+            room.setComboPrice2h(request.getComboPrice2h());
+            room.setPricePerNight(request.getPricePerNight());
+            room.setExtraHourPrice(request.getExtraHourPrice());
+            room.setStandardOccupancy(request.getStandardOccupancy());
+            room.setMaxOccupancy(request.getMaxOccupancy());
+            room.setNumChildrenFree(request.getNumChildrenFree());
+            room.setBedNumber(request.getBedNumber());
+            room.setExtraAdult(request.getExtraAdult());
+            room.setDescription(request.getDescription());
+
+            // 3. Lưu ảnh chính
+            if (mainImage != null && !mainImage.isEmpty()) {
+                filesStorageService.save(mainImage);
+                room.setRoomImg(mainImage.getOriginalFilename());
+            }
+
+            // 4. Gán hotel
+            Hotel hotel = hotelService.findById(request.getHotelId());
+            room.setHotel(hotel);
+
+            // 5. Gán service
+            if (request.getServiceIds() != null) {
+                List<Service> services = serviceRepository.findAllById(request.getServiceIds());
+                room.setServiceList(services);
+            }
+
+            Room savedRoom = roomService.save(room);
+
+            List<RoomImage> roomImageList = new ArrayList<>();
+            // 6. Lưu danh sách ảnh phụ
+            if (extraImages != null) {
+                for (MultipartFile file : extraImages) {
+                    if (!file.isEmpty()) {
+                        filesStorageService.save(file);
+                        RoomImage roomImage = RoomImage.builder()
+                                .room(savedRoom)
+                                .url(file.getOriginalFilename())
+                                .build();
+                        roomImageService.save(roomImage);
+                        roomImageList.add(roomImage);
+                    }
+                }
+            }
+            room.setRoomImageList(roomImageList);
+
+            return ResponseEntity.ok(RoomMapper.mapToCreateRoomResponse(savedRoom, new CreateRoomResponse()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Failed to create room: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<?> getRoomByBookingId(@PathVariable Integer bookingId) {
+        try {
+            Booking booking = bookingService.findById(bookingId);
+            if (booking == null || booking.getRoom() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(RoomMapper.mapToRoomDto(booking.getRoom(), new RoomResponseDto()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error retrieving room: " + e.getMessage());
+        }
+    }
+}

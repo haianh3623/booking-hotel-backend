@@ -2,6 +2,7 @@ package group.assignment.booking_hotel_backend.models;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,7 +17,9 @@ public class Booking extends BaseEntity{
     private Integer bookingId;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
-    private String status;
+    private Double price;
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status = BookingStatus.PENDING;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -27,7 +30,7 @@ public class Booking extends BaseEntity{
     private Room room;
 
     @ManyToOne
-    @JoinColumn(name = "bill_id", nullable = false)
+    @JoinColumn(name = "bill_id")
     private Bill bill;
 
     @OneToMany(mappedBy="booking")

@@ -1,18 +1,12 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
-import group.assignment.booking_hotel_backend.dto.BookingSearchRequest;
-import group.assignment.booking_hotel_backend.dto.BookingSearchResponse;
-import group.assignment.booking_hotel_backend.models.Booking;
-import group.assignment.booking_hotel_backend.models.Hotel;
-import group.assignment.booking_hotel_backend.models.Room;
-import group.assignment.booking_hotel_backend.models.Service;
-import group.assignment.booking_hotel_backend.repository.BookingRepository;
-import group.assignment.booking_hotel_backend.repository.HotelRepository;
-import group.assignment.booking_hotel_backend.repository.RoomRepository;
+import group.assignment.booking_hotel_backend.dto.*;
+import group.assignment.booking_hotel_backend.mapper.BookingMapper;
+import group.assignment.booking_hotel_backend.models.*;
+import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.BookingService;
 import lombok.RequiredArgsConstructor;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -28,9 +22,146 @@ public class BookingServiceImpl implements BookingService {
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+    private final BillRepository billRepository;
+    private final UserRepository userRepository;
+//    @Override
+//    public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
+//        System.out.println(request);
+//        List<Hotel> hotels;
+//
+//        if (request.getCity() != null && !request.getCity().isEmpty()
+//                && request.getDistrict() != null && !request.getDistrict().isEmpty()) {
+//            hotels = hotelRepository.findByAddressCityAndAddressDistrict(
+//                    request.getCity(), request.getDistrict()
+//            );
+//        } else {
+//            hotels = hotelRepository.findAll();
+//        }
+//
+//        System.out.println("Hi1");
+//        for (Hotel hotel : hotels) {
+//            System.out.println(hotel.getHotelName());
+//        }
+//
+//        List<BookingSearchResponse> results = new ArrayList<>();
+//
+//        LocalDateTime checkIn = parseDateTime(request.getCheckInDate(), request.getCheckInTime());
+//        LocalDateTime checkOut = parseDateTime(request.getCheckOutDate(), request.getCheckOutTime());
+//
+//        for (Hotel hotel : hotels) {
+//            for (Room room : hotel.getRoomList()) {
+//                // 2. Lọc dịch vụ theo yêu cầu
+//                List<String> roomServiceNames = room.getServiceList().stream()
+//                        .map(Service::getServiceName)
+//                        .collect(Collectors.toList());
+//
+//                String keyword = request.getInfoSearch();
+//                if (keyword != null && !keyword.trim().isEmpty()) {
+//                    String lowerKeyword = keyword.trim().toLowerCase();
+//
+//                    String hotelName = hotel.getHotelName() != null ? hotel.getHotelName().toLowerCase() : "";
+//                    String roomName = room.getRoomName() != null ? room.getRoomName().toLowerCase() : "";
+//                    String roomDesc = room.getDescription() != null ? room.getDescription().toLowerCase() : "";
+//                    String city = hotel.getAddress().getCity() != null ? hotel.getAddress().getCity().toLowerCase() : "";
+//                    String district = hotel.getAddress().getDistrict() != null ? hotel.getAddress().getDistrict().toLowerCase() : "";
+//                    String ward = hotel.getAddress().getWard() != null ? hotel.getAddress().getWard().toLowerCase() : "";
+//                    String specific = hotel.getAddress().getSpecificAddress() != null ? hotel.getAddress().getSpecificAddress().toLowerCase() : "";
+//
+//                    boolean match = hotelName.contains(lowerKeyword)
+//                            || roomName.contains(lowerKeyword)
+//                            || roomDesc.contains(lowerKeyword)
+//                            || city.contains(lowerKeyword)
+//                            || district.contains(lowerKeyword)
+//                            || ward.contains(lowerKeyword)
+//                            || specific.contains(lowerKeyword);
+//
+//                    if (!match) continue;
+//                }
+//
+//                if (request.getServices() != null && !roomServiceNames.containsAll(request.getServices())) {
+//                    continue;
+//                }
+//                if(request.getAdults() + request.getChildren() > room.getMaxOccupancy()){
+//                    continue;
+//                }
+//                if(request.getBedNumber() != room.getBedNumber()){
+//                    continue;
+//                }
+//                System.out.println("Hi2");
+//                for (String serviceName : request.getServices()) {
+//                    System.out.println(serviceName);
+//                }
+//
+//
+//                // 3. Kiểm tra xem phòng có bị trùng lịch không
+//                boolean isAvailable = isAvailable(room, checkIn, checkOut);
+//                if (!isAvailable) continue;
+//
+//                System.out.println("Hi3");
+//                System.out.println(isAvailable);
+//
+//
+//                // 4. Tính tổng giá tiền
+//                double price = calculateTotalPrice(request, room);
+//                System.out.println(4);
+//                System.out.println(price);
+//
+//                // 5. Lọc theo khoảng giá
+//                if (request.getPriceFrom() != null && price < request.getPriceFrom()) continue;
+//                if (request.getPriceTo() != null && price > request.getPriceTo()) continue;
+//                System.out.println(5);
+//
+//                results.add(BookingSearchResponse.builder()
+//                        .roomId(room.getRoomId())
+//                        .roomName(room.getRoomName())
+//                        .price(price)
+//                        .hotelName(hotel.getHotelName())
+//                        .roomImg(room.getRoomImg())
+//                        .address(hotel.getAddress().getSpecificAddress())
+//                        .services(roomServiceNames)
+//                        .checkIn(formatDateTime(checkIn))
+//                        .checkOut(formatDateTime(checkOut))
+//                        .adults(request.getAdults())
+//                        .children(request.getChildren())
+//                        .bedNumber(request.getBedNumber())
+//                        .build());
+//            }
+//        }
+//
+//        System.out.println("Hi4");
+//        System.out.println(results.size());
+//        for (BookingSearchResponse result : results) {
+//            System.out.println(result);
+//        }
+//
+//        // 6. Sắp xếp
+//        Comparator<BookingSearchResponse> comparator = null;
+//
+//        switch (request.getSortBy()) {
+//            case "price_asc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+//                break;
+//            case "price_desc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
+//                break;
+//            case "rating_asc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getRating);
+//                break;
+//            case "rating_desc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getRating).reversed();
+//                break;
+//            default:
+//                // Nếu không có sortBy hoặc không khớp, sắp xếp theo giá tăng dần mặc định
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+//                break;
+//        }
+//
+//        results.sort(comparator);
+//        return results;
+//    }
+
     @Override
     public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
-        System.out.println(request);
         List<Hotel> hotels;
 
         if (request.getCity() != null && !request.getCity().isEmpty()
@@ -42,11 +173,6 @@ public class BookingServiceImpl implements BookingService {
             hotels = hotelRepository.findAll();
         }
 
-        System.out.println("Hi1");
-        for (Hotel hotel : hotels) {
-            System.out.println(hotel.getHotelName());
-        }
-
         List<BookingSearchResponse> results = new ArrayList<>();
 
         LocalDateTime checkIn = parseDateTime(request.getCheckInDate(), request.getCheckInTime());
@@ -54,7 +180,6 @@ public class BookingServiceImpl implements BookingService {
 
         for (Hotel hotel : hotels) {
             for (Room room : hotel.getRoomList()) {
-                // 2. Lọc dịch vụ theo yêu cầu
                 List<String> roomServiceNames = room.getServiceList().stream()
                         .map(Service::getServiceName)
                         .collect(Collectors.toList());
@@ -62,7 +187,6 @@ public class BookingServiceImpl implements BookingService {
                 String keyword = request.getInfoSearch();
                 if (keyword != null && !keyword.trim().isEmpty()) {
                     String lowerKeyword = keyword.trim().toLowerCase();
-
                     String hotelName = hotel.getHotelName() != null ? hotel.getHotelName().toLowerCase() : "";
                     String roomName = room.getRoomName() != null ? room.getRoomName().toLowerCase() : "";
                     String roomDesc = room.getDescription() != null ? room.getDescription().toLowerCase() : "";
@@ -85,64 +209,235 @@ public class BookingServiceImpl implements BookingService {
                 if (request.getServices() != null && !roomServiceNames.containsAll(request.getServices())) {
                     continue;
                 }
-                if(request.getAdults() + request.getChildren() > room.getMaxOccupancy()){
+
+                if (request.getAdults() + request.getChildren() > room.getMaxOccupancy()) {
                     continue;
                 }
-                if(request.getBedNumber() != room.getBedNumber()){
+
+                if (request.getBedNumber() != room.getBedNumber()) {
                     continue;
                 }
-                System.out.println("Hi2");
-                for (String serviceName : request.getServices()) {
-                    System.out.println(serviceName);
-                }
 
-
-                // 3. Kiểm tra xem phòng có bị trùng lịch không
                 boolean isAvailable = isAvailable(room, checkIn, checkOut);
                 if (!isAvailable) continue;
 
-                System.out.println("Hi3");
-                System.out.println(isAvailable);
-
-
-                // 4. Tính tổng giá tiền
                 double price = calculateTotalPrice(request, room);
-                System.out.println(4);
-                System.out.println(price);
 
-                // 5. Lọc theo khoảng giá
                 if (request.getPriceFrom() != null && price < request.getPriceFrom()) continue;
                 if (request.getPriceTo() != null && price > request.getPriceTo()) continue;
-                System.out.println(5);
+
+                // ✅ Tính rating trung bình của phòng
+                List<Booking> bookings = room.getBookingList();
+                List<Review> allReviews = new ArrayList<>();
+                for (Booking booking : bookings) {
+                    if (booking.getReviewList() != null) {
+                        allReviews.addAll(booking.getReviewList());
+                    }
+                }
+
+                double avgRating = 0.0;
+                if (!allReviews.isEmpty()) {
+                    avgRating = allReviews.stream()
+                            .filter(r -> r.getRating() != null)
+                            .mapToInt(Review::getRating)
+                            .average()
+                            .orElse(0.0);
+                }
 
                 results.add(BookingSearchResponse.builder()
                         .roomId(room.getRoomId())
                         .roomName(room.getRoomName())
                         .price(price)
                         .hotelName(hotel.getHotelName())
+                        .roomImg(room.getRoomImg())
                         .address(hotel.getAddress().getSpecificAddress())
                         .services(roomServiceNames)
                         .checkIn(formatDateTime(checkIn))
                         .checkOut(formatDateTime(checkOut))
+                        .adults(request.getAdults())
+                        .children(request.getChildren())
+                        .bedNumber(request.getBedNumber())
+                        .rating(avgRating)
                         .build());
             }
         }
 
-        System.out.println("Hi4");
-        System.out.println(results.size());
-        for (BookingSearchResponse result : results) {
-            System.out.println(result);
-        }
+//        Comparator<BookingSearchResponse> comparator;
+//
+//        switch (request.getSortBy()) {
+//            case "price_asc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+//                break;
+//            case "price_desc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
+//                break;
+//            case "rating_asc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getRating);
+//                break;
+//            case "rating_desc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getRating).reversed();
+//                break;
+//            default:
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+//                break;
+//        }
 
-        // 6. Sắp xếp
-        Comparator<BookingSearchResponse> comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-        if ("price_desc".equals(request.getSortBy())) {
-            comparator = comparator.reversed();
+        Comparator<BookingSearchResponse> comparator;
+
+        switch (request.getSortBy()) {
+            case "price_asc":
+                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+                break;
+            case "price_desc":
+                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
+                break;
+            case "rating_asc":
+                comparator = Comparator
+                        .comparing(BookingSearchResponse::getRating)
+                        .thenComparing(BookingSearchResponse::getPrice);
+                break;
+            case "rating_desc":
+                comparator = Comparator
+                        .comparing(BookingSearchResponse::getRating)
+                        .reversed()
+                        .thenComparing(BookingSearchResponse::getPrice);
+                break;
+            default:
+                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+                break;
         }
 
         results.sort(comparator);
         return results;
     }
+
+
+    @Override
+    public BookingResponseDto createBooking(BookingRequestDto request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        Bill bill = null;
+        if (request.getBillId() != null) {
+            bill = billRepository.findById(request.getBillId())
+                    .orElseThrow(() -> new RuntimeException("Bill not found"));
+        }
+
+        if(bill == null){
+            bill = Bill.builder()
+                    .totalPrice(request.getPrice())
+                    .paidStatus(false)
+                    .user(user)
+                    .build();
+            bill = billRepository.save(bill);
+            System.out.println("bill" + bill.getBillId());
+        }
+        System.out.println("bill" + bill.getBillId());
+
+        Booking booking = Booking.builder()
+                .checkIn(request.getCheckIn())
+                .checkOut(request.getCheckOut())
+                .price(request.getPrice())
+                .status(BookingStatus.PENDING)
+                .user(user)
+                .room(room)
+                .bill(bill)
+                .build();
+
+        Booking saved = bookingRepository.save(booking);
+        return BookingMapper.mapToBookingResponseDto(saved, new BookingResponseDto());
+    }
+
+    @Override
+    public List<Booking> findAll() {
+        return bookingRepository.findAll();
+    }
+
+//    @Override
+//    public BookingResponseDto findById(Integer id) {
+//        Booking booking = bookingRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Booking not found"));
+//        return BookingMapper.mapToBookingResponseDto(booking, new BookingResponseDto());
+//    }
+
+    @Override
+    public Booking findById(Integer id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        return booking;
+    }
+
+    @Override
+    public Booking updateBooking(Integer id, BookingRequestDto request) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setCheckIn(request.getCheckIn());
+        booking.setCheckOut(request.getCheckOut());
+        booking.setPrice(request.getPrice());
+
+        if (request.getUserId() != null) {
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            booking.setUser(user);
+        }
+
+        if (request.getRoomId() != null) {
+            Room room = roomRepository.findById(request.getRoomId())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+            booking.setRoom(room);
+        }
+
+        if (request.getBillId() != null) {
+            Bill bill = billRepository.findById(request.getBillId())
+                    .orElseThrow(() -> new RuntimeException("Bill not found"));
+            booking.setBill(bill);
+        }
+
+        return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Booking update(Booking booking) {
+        Booking existing = bookingRepository.findById(booking.getBookingId())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        existing.setCheckIn(booking.getCheckIn());
+        existing.setCheckOut(booking.getCheckOut());
+        existing.setPrice(booking.getPrice());
+        existing.setStatus(booking.getStatus());
+        if (booking.getUser() != null) {
+            existing.setUser(booking.getUser());
+        }
+        if (booking.getRoom() != null) {
+            existing.setRoom(booking.getRoom());
+        }
+        existing.setBill(booking.getBill());
+        return bookingRepository.save(existing);
+    }
+
+
+    @Override
+    public void deleteById(Integer id) {
+        bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public Booking updateBookingStatus(Integer bookingId, BookingStatus newStatus) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setStatus(newStatus);
+        Booking updatedBooking = bookingRepository.save(booking);
+        return updatedBooking;
+    }
+
+    @Override
+    public List<Booking> findByUserId(Integer userId) {
+        return bookingRepository.findByUserUserId(userId);
+    }
+
 
     private String formatDateTime(LocalDateTime dateTime) {
         if (dateTime == null) return "";
@@ -228,4 +523,7 @@ public class BookingServiceImpl implements BookingService {
 
         return Math.min(totalStayPrice, timeBasedPrice);
     }
+
+
+
 }

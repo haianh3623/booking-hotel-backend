@@ -17,8 +17,13 @@ public class BookingSearchResponse {
     private String roomName;
     private Double price;
     private String hotelName;
+    private String roomImg;
     private String address;
     private List<String> services;
     private String checkIn;
     private String checkOut;
+    private int adults;
+    private int children;
+    private int bedNumber;
+    private Double rating;
 }

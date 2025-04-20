@@ -1,13 +1,13 @@
 package group.assignment.booking_hotel_backend.dto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
+@Data
 public class HotelDto {
     private Integer hotelId;
     private String hotelName;
