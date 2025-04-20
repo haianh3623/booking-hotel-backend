@@ -7,6 +7,7 @@ import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.BookingService;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -525,5 +526,21 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
+    @Override
+    public List<BookingStatsDto> getBookingStatsLastNDaysForHotel(int hotelId, int days) {
+        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
+        List<Object[]> results = bookingRepository.countBookingsPerDayForHotel(hotelId, startDate);
+    
+        List<BookingStatsDto> dtos = results.stream()
+            .map((Object[] row) -> new BookingStatsDto((LocalDate) row[0], (Long) row[1]))
+            .collect(Collectors.toList());
+        
+        return dtos;
+    }
 
+
+    @Override
+    public List<Booking> getCurrentBookingForHotel(int hotelId) {
+       return bookingRepository.findConfirmedBookingsByHotelId(hotelId);
+    }
 }
