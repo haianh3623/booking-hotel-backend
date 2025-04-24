@@ -63,4 +63,12 @@ public class ReviewServiceImpl implements ReviewService {
         }
         return null;
     }
+
+    @Override
+    public List<Review> findByRoomId(Integer roomId) {
+        List<Review> list = reviewRepository.findReviewsByRoomId(roomId);
+        return list;
+    }
+
+
 }

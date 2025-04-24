@@ -11,4 +11,6 @@ public interface ReviewService {
     void deleteById(Integer id);
     List<Review> getReviewsByBookingId(Integer bookingId);
     Review update(Integer reviewId, ReviewRequestDto review);
+
+    List<Review> findByRoomId(Integer roomId);
 }
