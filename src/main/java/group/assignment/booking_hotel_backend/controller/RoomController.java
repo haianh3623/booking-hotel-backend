@@ -30,6 +30,12 @@ public class RoomController {
     private final ObjectMapper objectMapper;
     private final BookingService bookingService;
 
+    @GetMapping("/top-rated")
+    public ResponseEntity<?> getTopRatedRooms() {
+        List<RoomResponseDto> topRooms = roomService.getTopRatedRooms(5);
+        return ResponseEntity.ok(topRooms);
+    }
+
 
     @PostMapping("/create-with-images")
     public ResponseEntity<?> createRoomWithImages(
@@ -109,5 +115,28 @@ public class RoomController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error retrieving room: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RoomResponseDto> getRoom(@PathVariable Integer id) {
+        return ResponseEntity.ok(RoomMapper.mapToRoomDto(roomService.findById(id), new RoomResponseDto()));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<RoomResponseDto>> getAllRooms() {
+        List<RoomResponseDto> roomList = new ArrayList<>();
+        for (Room room : roomService.findAll()) {
+            roomList.add(RoomMapper.mapToRoomDto(room, new RoomResponseDto()));
+        }
+        return ResponseEntity.ok(roomList);
+    }
+
+    @GetMapping("/hotel/{hotelId}")
+    public ResponseEntity<List<RoomResponseDto>> getAllRoomsByHotel(@PathVariable Integer hotelId) {
+        List<RoomResponseDto> roomList = new ArrayList<>();
+        for (Room room : roomService.findAllByHotelId(hotelId)) {
+            roomList.add(RoomMapper.mapToRoomDto(room, new RoomResponseDto()));
+        }
+        return ResponseEntity.ok(roomList);
     }
 }

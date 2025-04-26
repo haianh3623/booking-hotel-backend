@@ -1,6 +1,7 @@
 package group.assignment.booking_hotel_backend.repository;
 
 import group.assignment.booking_hotel_backend.models.Hotel;
+import group.assignment.booking_hotel_backend.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,4 +16,6 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
 
     @Query("SELECT DISTINCT a.district FROM Hotel h JOIN h.address a")
     List<String> findDistinctDistricts();
+
+    List<Hotel> findByUserIn(List<User> users);
 }

@@ -2,16 +2,23 @@ package group.assignment.booking_hotel_backend.controller;
 
 import group.assignment.booking_hotel_backend.dto.HotelDto;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
+import group.assignment.booking_hotel_backend.dto.UserDto;
+import group.assignment.booking_hotel_backend.dto.UserResponseDto;
 import group.assignment.booking_hotel_backend.mapper.HotelMapper;
+import group.assignment.booking_hotel_backend.mapper.UserMapper;
 import group.assignment.booking_hotel_backend.models.Hotel;
+import group.assignment.booking_hotel_backend.models.Role;
 import group.assignment.booking_hotel_backend.models.Room;
+import group.assignment.booking_hotel_backend.models.User;
 import group.assignment.booking_hotel_backend.services.HotelService;
 import group.assignment.booking_hotel_backend.services.RoomService;
+import group.assignment.booking_hotel_backend.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,6 +27,7 @@ import java.util.List;
 public class HotelOwnerController {
     private final HotelService hotelService;
     private final RoomService roomService;
+    private final UserService userService;
 
     @PreAuthorize("hasRole('HOTEL_OWNER')")
     @GetMapping("/")
@@ -28,8 +36,12 @@ public class HotelOwnerController {
     }
 
     @GetMapping("/hotels/{userId}")
-    public List<Hotel> getHotelsByUser(@PathVariable Integer userId) {
-        return hotelService.findByUserId(userId);
+    public ResponseEntity<List<HotelDto>> getHotelsByUser(@PathVariable Integer userId) {
+        List<HotelDto> hotels = new ArrayList<>();
+        for (Hotel hotel : hotelService.findByUserId(userId)) {
+            hotels.add(HotelMapper.mapToHotelDto(hotel, new HotelDto()));
+        }
+        return ResponseEntity.ok(hotels);
     }
 
     @DeleteMapping("/hotel/{hotelId}")
@@ -39,8 +51,8 @@ public class HotelOwnerController {
     }
 
     @GetMapping("/hotel/{hotelId}")
-    public ResponseEntity<Hotel> getHotelById(@PathVariable Integer hotelId) {
-        return ResponseEntity.ok(hotelService.findById(hotelId));
+    public ResponseEntity<HotelDto> getHotelById(@PathVariable Integer hotelId) {
+        return ResponseEntity.ok(HotelMapper.mapToHotelDto(hotelService.findById(hotelId), new HotelDto()));
     }
 
 
@@ -69,4 +81,32 @@ public class HotelOwnerController {
     public ResponseEntity<List<Room>> getAllRooms() {
         return ResponseEntity.ok(roomService.findAll());
     }
+
+    @GetMapping("/hotels")
+    public ResponseEntity<List<HotelDto>> getHotelsByRoleOwner() {
+        List<HotelDto> hotels = new ArrayList<>();
+        for (Hotel hotel : hotelService.findHotelsByRoleOwner("ROLE_HOTEL_OWNER")) {
+            hotels.add(HotelMapper.mapToHotelDto(hotel, new HotelDto()));
+        }
+        return ResponseEntity.ok(hotels);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<UserResponseDto>> getUserOwner() {
+        List<User> userList = userService.findByRoleList_Name("ROLE_HOTEL_OWNER");
+        List<UserResponseDto> userDtos = new ArrayList<>();
+        for (User user : userList) {
+            userDtos.add(UserMapper.mapToUserDto(user, new UserResponseDto()));
+        }
+        return ResponseEntity.ok(userDtos);
+    }
+
+//    @GetMapping("/hotels/{userId}")
+//    public ResponseEntity<List<HotelDto>> getHotelsByIdOwner(@PathVariable Integer userId) {
+//        List<HotelDto> hotels = new ArrayList<>();
+//        for (Hotel hotel : hotelService.findHotelsByIdOwner(userId)) {
+//            hotels.add(HotelMapper.mapToHotelDto(hotel, new HotelDto()));
+//        }
+//        return ResponseEntity.ok(hotels);
+//    }
 }

@@ -19,8 +19,10 @@ public class BookingMapper {
         response.setCreatedAt(booking.getCreatedAt());
         List<Integer> reviewIdList = new ArrayList<>();
         List<Review> reviewList = booking.getReviewList();
-        for (Review review : reviewList){
-            reviewIdList.add(review.getReviewId());
+        if (reviewList != null) {
+            for (Review review : reviewList){
+                reviewIdList.add(review.getReviewId());
+            }
         }
         response.setReviewIdList(reviewIdList);
         return response;

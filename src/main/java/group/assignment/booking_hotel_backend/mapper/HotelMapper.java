@@ -22,21 +22,16 @@ public class HotelMapper {
         return hotelDto;
     }
 
-//    public static Hotel mapToHotel(HotelDto dto, User user) {
-//        Hotel hotel = new Hotel();
-//        hotel.setHotelId(dto.getHotelId());
-//        hotel.setHotelName(dto.getHotelName());
-//        hotel.setUser(user);
-//
-//        Address address = new Address();
-//        address.setCity(dto.getAddress().getCity());
-//        address.setDistrict(dto.getAddress().getDistrict());
-//        address.setWard(dto.getAddress().getWard());
-//        address.setSpecificAddress(dto.getAddress().getSpecificAddress());
-//
-//        hotel.setAddress(address);
-//
-//        return hotel;
-//    }
+    public static Hotel mapToHotel(HotelDto dto, Hotel hotel) {
+        hotel.setHotelId(dto.getHotelId());
+        hotel.setHotelName(dto.getHotelName());
+        Address address = new Address();
+        address.setCity(dto.getAddress().getCity());
+        address.setDistrict(dto.getAddress().getDistrict());
+        address.setWard(dto.getAddress().getWard());
+        address.setSpecificAddress(dto.getAddress().getSpecificAddress());
+        hotel.setAddress(address);
+        return hotel;
+    }
 
 }
