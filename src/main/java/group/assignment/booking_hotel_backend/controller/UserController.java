@@ -10,6 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import group.assignment.booking_hotel_backend.dto.UpdateUserRequest;
+import group.assignment.booking_hotel_backend.dto.ChangePasswordRequest;
 
 @RestController
 @RequestMapping("/api/user")
@@ -34,11 +36,30 @@ public class UserController {
         return ResponseEntity.ok("Welcome to customer profile");
     }
 
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'HOTEL_OWNER', 'ADMIN')")
     @GetMapping("/info")
     public ResponseEntity<?> getUserLogin(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userService.findByUsername(userDetails.getUsername());
         UserDto userDto = UserMapper.mapToUserDto(user, new UserDto());
         return ResponseEntity.ok(userDto);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUserInfo(
+            Authentication authentication,
+            @RequestBody UpdateUserRequest request) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDto updatedUser = userService.updateUser(userDetails.getUsername(), request);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            Authentication authentication,
+            @RequestBody ChangePasswordRequest request) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        userService.changePassword(userDetails.getUsername(), request);
+        return ResponseEntity.ok("Password changed successfully");
     }
 }

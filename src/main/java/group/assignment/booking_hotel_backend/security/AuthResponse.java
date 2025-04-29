@@ -1,17 +1,4 @@
-package group.assignment.booking_hotel_backend.security;//package group.assignment.booking_hotel_backend.security;
-//
-//public class AuthResponse {
-//    private final String jwt;
-//
-//    public AuthResponse(String jwt) {
-//        this.jwt = jwt;
-//    }
-//
-//    public String getJwt() {
-//        return jwt;
-//    }
-//}
-
+package group.assignment.booking_hotel_backend.security;
 
 import lombok.*;
 
@@ -24,4 +11,5 @@ import lombok.*;
 public class AuthResponse {
     private String jwt;
     private Integer userId;
+    private String[] roles;
 }
