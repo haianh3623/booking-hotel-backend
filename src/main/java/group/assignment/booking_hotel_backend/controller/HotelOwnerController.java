@@ -27,7 +27,7 @@ import java.util.List;
 public class HotelOwnerController {
     private final HotelService hotelService;
     private final RoomService roomService;
-
+    private final UserService userService;
     @PreAuthorize("hasRole('HOTEL_OWNER')")
     @GetMapping("/")
     public ResponseEntity<String> getHotelOwnerHome() {
