@@ -1,4 +1,0 @@
-package group.assignment.booking_hotel_backend.security;
-
-public interface NotificationService {
-}

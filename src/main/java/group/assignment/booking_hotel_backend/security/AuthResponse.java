@@ -1,4 +1,4 @@
-package group.assignment.booking_hotel_backend.security;//package group.assignment.booking_hotel_backend.security;
+package group.assignment.booking_hotel_backend.security;
 import lombok.*;
 
 @Data
@@ -10,4 +10,5 @@ import lombok.*;
 public class AuthResponse {
     private String jwt;
     private Integer userId;
+    private String[] roles;
 }

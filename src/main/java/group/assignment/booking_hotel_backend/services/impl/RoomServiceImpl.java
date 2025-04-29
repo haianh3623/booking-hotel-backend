@@ -74,6 +74,7 @@ public class RoomServiceImpl implements RoomService {
         room.setExtraAdult(roomDto.getExtraAdult());
         room.setDescription(roomDto.getDescription());
 
+        // Update image nếu có file mới
         if (roomDto.getRoomImg() != null && !roomDto.getRoomImg().isEmpty()) {
             filesStorageService.save(roomDto.getRoomImg());
             room.setRoomImg(roomDto.getRoomImg().getOriginalFilename());
