@@ -1,9 +1,6 @@
 package group.assignment.booking_hotel_backend.controller;
 
-import group.assignment.booking_hotel_backend.dto.RoleDto;
-import group.assignment.booking_hotel_backend.dto.UserDto;
-import group.assignment.booking_hotel_backend.dto.UserRequestDto;
-import group.assignment.booking_hotel_backend.dto.UserResponseDto;
+import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.mapper.UserMapper;
 import group.assignment.booking_hotel_backend.models.Role;
 import group.assignment.booking_hotel_backend.models.User;
@@ -29,19 +26,37 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
 
-
     @PreAuthorize("hasAnyRole('CUSTOMER', 'HOTEL_OWNER', 'ADMIN')")
     @GetMapping("/profile")
     public ResponseEntity<String> getCustomerProfile() {
         return ResponseEntity.ok("Welcome to customer profile");
     }
 
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'HOTEL_OWNER', 'ADMIN')")
     @GetMapping("/info")
     public ResponseEntity<?> getUserLogin(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userService.findByUsername(userDetails.getUsername());
         UserDto userDto = UserMapper.mapToUserDto(user, new UserDto());
         return ResponseEntity.ok(userDto);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUserInfo(
+            Authentication authentication,
+            @RequestBody UpdateUserRequest request) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDto updatedUser = userService.updateUser(userDetails.getUsername(), request);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            Authentication authentication,
+            @RequestBody ChangePasswordRequest request) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        userService.changePassword(userDetails.getUsername(), request);
+        return ResponseEntity.ok("Password changed successfully");
     }
 
 //    @PostMapping
