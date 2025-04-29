@@ -14,7 +14,6 @@ public class Role extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer roleId;
     private String name;
-//    private LocalDateTime timeCreated;
     @ManyToMany
     @JoinTable(
             name="user_role",

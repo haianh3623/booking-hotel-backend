@@ -29,10 +29,6 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
 
-//    @GetMapping
-//    public String hello() {
-//        return "Hello, World!";
-//    }
 
     @PreAuthorize("hasAnyRole('CUSTOMER', 'HOTEL_OWNER', 'ADMIN')")
     @GetMapping("/profile")
@@ -57,7 +53,6 @@ public class UserController {
 //                roles.add(role);
 //            }
 //        }
-//
 //        User user = new User();
 //        UserMapper.mapToUser(userDto, user, roles);
 //        User savedUser = userService.save(user);

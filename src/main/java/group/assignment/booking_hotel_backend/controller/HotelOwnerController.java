@@ -100,13 +100,4 @@ public class HotelOwnerController {
         }
         return ResponseEntity.ok(userDtos);
     }
-
-//    @GetMapping("/hotels/{userId}")
-//    public ResponseEntity<List<HotelDto>> getHotelsByIdOwner(@PathVariable Integer userId) {
-//        List<HotelDto> hotels = new ArrayList<>();
-//        for (Hotel hotel : hotelService.findHotelsByIdOwner(userId)) {
-//            hotels.add(HotelMapper.mapToHotelDto(hotel, new HotelDto()));
-//        }
-//        return ResponseEntity.ok(hotels);
-//    }
 }

@@ -44,10 +44,8 @@ public class RoomController {
             @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages
     ) {
         try {
-            // 1. Chuyển JSON thành DTO
             CreateRoomRequest request = objectMapper.readValue(roomInfoJson, CreateRoomRequest.class);
 
-            // 2. Tạo room
             Room room = new Room();
             room.setRoomName(request.getRoomName());
             room.setArea(request.getArea());
@@ -61,17 +59,14 @@ public class RoomController {
             room.setExtraAdult(request.getExtraAdult());
             room.setDescription(request.getDescription());
 
-            // 3. Lưu ảnh chính
             if (mainImage != null && !mainImage.isEmpty()) {
                 filesStorageService.save(mainImage);
                 room.setRoomImg(mainImage.getOriginalFilename());
             }
 
-            // 4. Gán hotel
             Hotel hotel = hotelService.findById(request.getHotelId());
             room.setHotel(hotel);
 
-            // 5. Gán service
             if (request.getServiceIds() != null) {
                 List<Service> services = serviceRepository.findAllById(request.getServiceIds());
                 room.setServiceList(services);
@@ -80,7 +75,6 @@ public class RoomController {
             Room savedRoom = roomService.save(room);
 
             List<RoomImage> roomImageList = new ArrayList<>();
-            // 6. Lưu danh sách ảnh phụ
             if (extraImages != null) {
                 for (MultipartFile file : extraImages) {
                     if (!file.isEmpty()) {

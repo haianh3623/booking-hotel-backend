@@ -259,27 +259,6 @@ public class BookingServiceImpl implements BookingService {
                         .build());
             }
         }
-
-//        Comparator<BookingSearchResponse> comparator;
-//
-//        switch (request.getSortBy()) {
-//            case "price_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//            case "price_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
-//                break;
-//            case "rating_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating);
-//                break;
-//            case "rating_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating).reversed();
-//                break;
-//            default:
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//        }
-
         Comparator<BookingSearchResponse> comparator;
 
         switch (request.getSortBy()) {
