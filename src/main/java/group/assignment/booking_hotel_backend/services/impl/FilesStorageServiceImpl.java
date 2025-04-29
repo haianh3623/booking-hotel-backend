@@ -1,10 +1,8 @@
 package group.assignment.booking_hotel_backend.services.impl;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.UUID;
 import java.util.stream.Stream;
 import group.assignment.booking_hotel_backend.services.FilesStorageService;
 import org.springframework.core.io.Resource;
@@ -26,10 +24,27 @@ public class FilesStorageServiceImpl implements FilesStorageService {
         }
     }
 
+//    @Override
+//    public void save(MultipartFile file) {
+//        try {
+//            Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
+//        } catch (Exception e) {
+//            if (e instanceof FileAlreadyExistsException) {
+//                throw new RuntimeException("A file of that name already exists.");
+//            }
+//
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
+
     @Override
     public void save(MultipartFile file) {
         try {
-            Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String newFilename = UUID.randomUUID().toString() + extension;
+            Files.copy(file.getInputStream(), this.root.resolve(newFilename), StandardCopyOption.REPLACE_EXISTING);
+
         } catch (Exception e) {
             if (e instanceof FileAlreadyExistsException) {
                 throw new RuntimeException("A file of that name already exists.");
@@ -38,6 +53,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
 
     @Override
     public Resource load(String filename) {
