@@ -124,27 +124,6 @@ public class BookingServiceImpl implements BookingService {
                         .build());
             }
         }
-
-//        Comparator<BookingSearchResponse> comparator;
-//
-//        switch (request.getSortBy()) {
-//            case "price_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//            case "price_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
-//                break;
-//            case "rating_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating);
-//                break;
-//            case "rating_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating).reversed();
-//                break;
-//            default:
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//        }
-
         Comparator<BookingSearchResponse> comparator;
 
         switch (request.getSortBy()) {
@@ -301,6 +280,34 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findByUserUserId(userId);
     }
 
+    @Override
+    public Long count() {
+        return bookingRepository.count();
+    }
+
+    @Override
+    public Map<String, Double> getDailyRevenueThisMonth() {
+        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime endOfMonth = startOfMonth.plusMonths(1);
+
+        List<Booking> bookings = bookingRepository
+                .findByCheckInBetweenAndStatus(startOfMonth, endOfMonth, BookingStatus.CONFIRMED);
+
+        Map<String, Double> dailyRevenue = new TreeMap<>();
+        for (Booking booking : bookings) {
+            String day = booking.getCheckIn().toLocalDate().toString();
+            double price = booking.getPrice() != null ? booking.getPrice() : 0.0;
+            dailyRevenue.put(day, dailyRevenue.getOrDefault(day, 0.0) + price);
+        }
+        return dailyRevenue;
+    }
+
+    @Override
+    public Double getTotalRevenueBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+        return bookingRepository.getTotalRevenueBetweenDates(startDate, endDate);
+    }
+
+
 
     private String formatDateTime(LocalDateTime dateTime) {
         if (dateTime == null) return "";
@@ -387,6 +394,39 @@ public class BookingServiceImpl implements BookingService {
         return Math.min(totalStayPrice, timeBasedPrice);
     }
 
+    @Override
+    public AdminRevenueResponse getRevenueAndBookingDetails(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Booking> bookings = bookingRepository.findBookingsBetweenDates(startDate, endDate);
+        List<AdminBookingDetailResponse> bookingDetails = new ArrayList<>();
+        Double totalRevenue = 0.0;
+        for (Booking booking : bookings) {
+            if (booking.getStatus() == BookingStatus.CONFIRMED && booking.getBill().getPaidStatus()) {
+                AdminBookingDetailResponse detailResponse = AdminBookingDetailResponse.builder()
+                        .bookingId(booking.getBookingId())
+                        .roomName(booking.getRoom().getRoomName())
+                        .fullName(booking.getUser().getFullName())
+                        .phone(booking.getUser().getPhone())
+                        .checkIn(booking.getCheckIn())
+                        .checkOut(booking.getCheckOut())
+                        .price(booking.getPrice())
+                        .createAt(booking.getCreatedAt())
+                        .build();
+                bookingDetails.add(detailResponse);
+                totalRevenue += booking.getPrice();
+            }
+        }
 
+        return AdminRevenueResponse.builder()
+                .bookingDetailList(bookingDetails)
+                .totalRevenue(totalRevenue)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+    }
+
+    @Override
+    public List<Booking> findAllBookingsByHotelOwner(Integer userId) {
+        return bookingRepository.findAllBookingsByHotelOwner(userId);
+    }
 
 }
