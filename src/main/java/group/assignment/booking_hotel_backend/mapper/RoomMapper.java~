@@ -74,7 +74,6 @@ public class RoomMapper {
 
 
     public static RoomResponseDto mapToRoomDto(Room room, RoomResponseDto roomDto) {
-        roomDto.setRoomId(room.getRoomId());
         roomDto.setRoomName(room.getRoomName());
         roomDto.setArea(room.getArea());
         roomDto.setComboPrice2h(room.getComboPrice2h());

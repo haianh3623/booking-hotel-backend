@@ -11,6 +11,7 @@ import java.util.List;
 @ToString
 @Data
 public class RoomResponseDto {
+    private Integer roomId;
     private String roomName;
     private Double area;
     private Double comboPrice2h;

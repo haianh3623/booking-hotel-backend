@@ -1,0 +1,18 @@
+package group.assignment.booking_hotel_backend.dto;
+
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@Data
+public class AdminRevenueRequest {
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+
+}

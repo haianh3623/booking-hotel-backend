@@ -1,5 +1,7 @@
 package group.assignment.booking_hotel_backend.services;
+
 import group.assignment.booking_hotel_backend.dto.RoomDto;
+import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
 import group.assignment.booking_hotel_backend.models.Room;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,5 +19,7 @@ public interface RoomService {
     boolean deleteById(Integer id);
     Room findById(Integer id);
     List<Room> findAll();
-    List<Room> findByHotelId(Integer hotelId);
+    List<RoomResponseDto> getTopRatedRooms(int limit);
+    Long count();
+    List<Room> findAllByHotelId(Integer hotelId);
 }

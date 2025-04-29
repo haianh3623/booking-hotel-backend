@@ -1,9 +1,10 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
 import group.assignment.booking_hotel_backend.dto.RoomDto;
-import group.assignment.booking_hotel_backend.models.Hotel;
-import group.assignment.booking_hotel_backend.models.Room;
-import group.assignment.booking_hotel_backend.models.Service;
+import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
+import group.assignment.booking_hotel_backend.dto.RoomWithRating;
+import group.assignment.booking_hotel_backend.mapper.RoomMapper;
+import group.assignment.booking_hotel_backend.models.*;
 import group.assignment.booking_hotel_backend.repository.HotelRepository;
 import group.assignment.booking_hotel_backend.repository.RoomRepository;
 import group.assignment.booking_hotel_backend.repository.ServiceRepository;
@@ -11,8 +12,10 @@ import group.assignment.booking_hotel_backend.services.FilesStorageService;
 import group.assignment.booking_hotel_backend.services.RoomService;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -112,7 +115,37 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<Room> findByHotelId(Integer hotelId) {
-        return roomRepository.findByHotelId(hotelId);
+    public List<RoomResponseDto> getTopRatedRooms(int limit) {
+        List<Room> allRooms = roomRepository.findAll();
+
+        List<RoomWithRating> roomWithRatings = allRooms.stream().map(room -> {
+                    List<Booking> bookings = room.getBookingList();
+                    List<Review> allReviews = bookings.stream()
+                            .flatMap(booking -> booking.getReviewList().stream())
+                            .collect(Collectors.toList());
+
+                    double avgRating = allReviews.stream()
+                            .mapToInt(Review::getRating)
+                            .average()
+                            .orElse(0.0);
+
+                    return new RoomWithRating(room, avgRating);
+                }).sorted(Comparator.comparingDouble(RoomWithRating::getAvgRating).reversed())
+                .limit(limit)
+                .collect(Collectors.toList());
+
+        return roomWithRatings.stream()
+                .map(rwr -> RoomMapper.mapToRoomDto(rwr.getRoom(), new RoomResponseDto()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long count() {
+        return roomRepository.count();
+    }
+
+    @Override
+    public List<Room> findAllByHotelId(Integer hotelId) {
+        return roomRepository.findAllByHotel_HotelId(hotelId);
     }
 }

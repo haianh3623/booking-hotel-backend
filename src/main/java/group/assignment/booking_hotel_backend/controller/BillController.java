@@ -1,5 +1,4 @@
 package group.assignment.booking_hotel_backend.controller;
-
 import group.assignment.booking_hotel_backend.dto.BillResponseDto;
 import group.assignment.booking_hotel_backend.mapper.BillMapper;
 import group.assignment.booking_hotel_backend.models.Bill;
@@ -7,7 +6,6 @@ import group.assignment.booking_hotel_backend.services.BillService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

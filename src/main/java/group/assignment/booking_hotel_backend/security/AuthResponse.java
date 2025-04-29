@@ -1,5 +1,4 @@
 package group.assignment.booking_hotel_backend.security;
-
 import lombok.*;
 
 @Data
