@@ -17,5 +17,6 @@ public interface RoomService {
     boolean deleteById(Integer id);
     Room findById(Integer id);
     List<Room> findAll();
-    List<Room> findByHotelId(Integer hotelId);
+    Page<Room> findByHotelId(Integer hotelId, String query, Pageable pageable);
+    Long countRoomsByHotelId(Integer hotelId);
 }

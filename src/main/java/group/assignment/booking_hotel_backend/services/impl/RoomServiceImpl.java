@@ -10,6 +10,10 @@ import group.assignment.booking_hotel_backend.repository.ServiceRepository;
 import group.assignment.booking_hotel_backend.services.FilesStorageService;
 import group.assignment.booking_hotel_backend.services.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -112,7 +116,12 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<Room> findByHotelId(Integer hotelId) {
-        return roomRepository.findByHotelId(hotelId);
+    public Page<Room> findByHotelId(Integer hotelId, String query, Pageable pageable) {
+        return roomRepository.findByHotelIdAndQuery(hotelId, query.toLowerCase(), pageable);
+    }
+
+    @Override
+    public Long countRoomsByHotelId(Integer hotelId) {
+        return roomRepository.countByHotelId(hotelId);
     }
 }

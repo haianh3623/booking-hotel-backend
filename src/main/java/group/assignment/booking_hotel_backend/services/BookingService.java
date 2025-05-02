@@ -9,6 +9,11 @@ import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.models.Room;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 
 public interface BookingService {
@@ -24,5 +29,6 @@ public interface BookingService {
     List<Booking> findByUserId(Integer userId);
     List<BookingStatsDto> getBookingStatsLastNDaysForHotel(int hotelId, int days);
     List<Booking> getCurrentBookingForHotel(int hotelId);
-    List<Booking> getAllBookingByHotelId(int hotelId);
+    Page<Booking> getBookingsByHotelId(Integer hotelId, String query, Pageable pageable);
+    Long countBookingsByHotelId(Integer hotelId);
 }

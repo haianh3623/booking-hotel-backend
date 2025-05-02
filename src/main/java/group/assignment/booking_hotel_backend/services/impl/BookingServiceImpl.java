@@ -17,6 +17,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
@@ -532,7 +537,10 @@ public class BookingServiceImpl implements BookingService {
         List<Object[]> results = bookingRepository.countBookingsPerDayForHotel(hotelId, startDate);
     
         List<BookingStatsDto> dtos = results.stream()
-            .map((Object[] row) -> new BookingStatsDto((LocalDate) row[0], (Long) row[1]))
+        .map((Object[] row) -> new BookingStatsDto(
+            ((java.sql.Date) row[0]).toLocalDate(),
+            (Long) row[1]
+        ))
             .collect(Collectors.toList());
         
         return dtos;
@@ -545,7 +553,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllBookingByHotelId(int hotelId) {
-        return bookingRepository.findByRoomHotelHotelId(hotelId);
+    public Page<Booking> getBookingsByHotelId(Integer hotelId, String query, Pageable pageable) {
+        return bookingRepository.findByHotelIdAndQuery(hotelId, "%" + query.toLowerCase() + "%", pageable);
     }
+
+    @Override
+    public Long countBookingsByHotelId(Integer hotelId) {
+        return bookingRepository.countByHotelId(hotelId);
+    }
+    
 }
