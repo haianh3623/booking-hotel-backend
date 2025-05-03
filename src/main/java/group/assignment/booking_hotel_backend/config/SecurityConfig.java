@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/api/review/**").permitAll()
                         .requestMatchers("/api/bill/**").permitAll()
+                        .requestMatchers("/api/notification/**").permitAll()
                         .requestMatchers("/api/room/booking/**").permitAll()
                         .anyRequest().authenticated()
                 )
