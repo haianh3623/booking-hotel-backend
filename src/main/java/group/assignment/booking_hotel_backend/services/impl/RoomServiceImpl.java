@@ -1,12 +1,8 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
-import group.assignment.booking_hotel_backend.dto.RoomDto;
-import group.assignment.booking_hotel_backend.dto.RoomSearchListDto;
+import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.models.*;
-import group.assignment.booking_hotel_backend.repository.AddressRepository;
-import group.assignment.booking_hotel_backend.repository.HotelRepository;
-import group.assignment.booking_hotel_backend.repository.RoomRepository;
-import group.assignment.booking_hotel_backend.repository.ServiceRepository;
+import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.FilesStorageService;
 import group.assignment.booking_hotel_backend.services.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +22,8 @@ public class RoomServiceImpl implements RoomService {
     private final FilesStorageService filesStorageService;
     private final ReviewServiceImpl reviewService;
     private final AddressRepository addressRepository;
+    private final RoomImageRepository roomImageRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public Room save(RoomDto roomDto) {
@@ -126,8 +124,8 @@ public class RoomServiceImpl implements RoomService {
         for(RoomSearchListDto room : list) {
             Double rating = 0.0;
             Integer reviewCount = 0;
-            List<Review> reviews = reviewService.findByRoomId(room.getRoomId());
-            for(Review review : reviews) {
+            List<ReviewDto> reviews = reviewService.findByRoomId(room.getRoomId());
+            for(ReviewDto review : reviews) {
                 rating += review.getRating();
                 reviewCount++;
             }
@@ -155,7 +153,7 @@ public class RoomServiceImpl implements RoomService {
             RoomSearchListDto room = iterator.next();
             String hotelName = room.getHotelName();
 
-            if (searchRequest.getCity() != null && !searchRequest.getCity().isEmpty()) {
+            if (searchRequest.getCity() != null && !searchRequest.getCity().isEmpty() && searchRequest.getCity().compareTo("Tất cả") != 0) {
                 List<String> cities = hotelRepository.findCityByHotelName(hotelName);
                 if (!cities.contains(searchRequest.getCity())) {
                     System.out.println(!cities.contains(searchRequest.getCity()));
@@ -164,7 +162,7 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
 
-            if (searchRequest.getDistrict() != null && !searchRequest.getDistrict().isEmpty()) {
+            if (searchRequest.getDistrict() != null && !searchRequest.getDistrict().isEmpty() && searchRequest.getDistrict().compareTo("Tất cả") != 0) {
                 List<String> districts = hotelRepository.findDistrictByHotelName(hotelName);
                 if (!districts.contains(searchRequest.getDistrict())) {
                     iterator.remove();
@@ -191,10 +189,50 @@ public class RoomServiceImpl implements RoomService {
                     iterator.remove();
                 }
             }
+
+            room.setAddress(addressRepository.findAddressByHotelName(hotelName).toString());
         }
 
 
 
         return list;
+    }
+
+    @Override
+    public RoomDetailsDto getRoomDetails(Integer roomId) {
+        RoomDetailsDto roomDetails = new RoomDetailsDto();
+        Room room = roomRepository.findById(roomId).get();
+        if(room != null){
+            roomDetails.setRoomId(room.getRoomId());
+            roomDetails.setRoomName(room.getRoomName());
+            roomDetails.setArea(room.getArea());
+            roomDetails.setComboPrice2h(room.getComboPrice2h());
+            roomDetails.setPricePerNight(room.getPricePerNight());
+            roomDetails.setExtraHourPrice(room.getExtraHourPrice());
+            roomDetails.setStandardOccupancy(room.getStandardOccupancy());
+            roomDetails.setMaxOccupancy(room.getMaxOccupancy());
+            roomDetails.setNumChildrenFree(room.getNumChildrenFree());
+            roomDetails.setBedNumber(room.getBedNumber());
+            roomDetails.setExtraAdult(room.getExtraAdult());
+            roomDetails.setDescription(room.getDescription());
+
+            roomDetails.setRoomImgs(roomImageRepository.findByRoomRoomId(roomId).stream().map(
+                    roomImage -> roomImage.getUrl()
+            ).toList(
+            ));
+
+            roomDetails.setHotelName(hotelRepository.findHotelNameByRoomId(roomId));
+
+            roomDetails.setAddress(addressRepository.findAddressByHotelName(roomDetails.getHotelName()).toString());
+
+            List<Service> services = serviceRepository.findServicesByRoomId(roomId);
+            roomDetails.setServices(services.stream().map(Service::getServiceName).toList());
+
+            List<ReviewCardDto> reviews = reviewRepository.findReviewsCardByRoomId(roomId);
+            roomDetails.setReviews(reviews);
+
+        }
+
+        return roomDetails;
     }
 }

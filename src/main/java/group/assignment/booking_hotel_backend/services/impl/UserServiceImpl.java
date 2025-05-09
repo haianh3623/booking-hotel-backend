@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto registerUser(RegistrationRequest request) {
         User user = UserMapper.mapToUser(request, new User(), passwordEncoder);
-        Role role = roleRepository.findByName("ROLE_CUSTOMER");
+        Role role = roleRepository.findByName("ROL]E_CUSTOMER");
         user.addRole(role);
         User savedUser = userRepository.save(user);
         return UserMapper.mapToUserDto(savedUser, new UserDto());

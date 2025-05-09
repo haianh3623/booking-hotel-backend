@@ -406,7 +406,7 @@ CREATE TABLE `user_role` (
 
 LOCK TABLES `user_role` WRITE;
 /*!40000 ALTER TABLE `user_role` DISABLE KEYS */;
-INSERT INTO `user_role` VALUES (1,1),(2,2),(3,3),(4,1),(6,1),(8,1),(10,1),(11,1),(12,1),(13,1),(14,1);
+INSERT INTO `user_role` VALUES (1,1),(2,2),(3,3);
 /*!40000 ALTER TABLE `user_role` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

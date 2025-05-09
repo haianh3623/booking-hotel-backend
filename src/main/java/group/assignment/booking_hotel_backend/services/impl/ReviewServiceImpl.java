@@ -1,5 +1,6 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
+import group.assignment.booking_hotel_backend.dto.ReviewDto;
 import group.assignment.booking_hotel_backend.dto.ReviewRequestDto;
 import group.assignment.booking_hotel_backend.models.Review;
 import group.assignment.booking_hotel_backend.repository.ReviewRepository;
@@ -65,8 +66,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> findByRoomId(Integer roomId) {
-        List<Review> list = reviewRepository.findReviewsByRoomId(roomId);
+    public List<ReviewDto> findByRoomId(Integer roomId) {
+        List<ReviewDto> list = reviewRepository.findReviewsByRoomId(roomId);
         return list;
     }
 

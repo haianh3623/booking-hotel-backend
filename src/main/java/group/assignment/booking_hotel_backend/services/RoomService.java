@@ -1,5 +1,6 @@
 package group.assignment.booking_hotel_backend.services;
 
+import group.assignment.booking_hotel_backend.dto.RoomDetailsDto;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
 import group.assignment.booking_hotel_backend.dto.RoomSearchListDto;
 import group.assignment.booking_hotel_backend.models.Room;
@@ -24,4 +25,5 @@ public interface RoomService {
 
     List<RoomSearchListDto> findRoomByKeyword(String keyword, Pageable pageable);
     List<RoomSearchListDto> findRoomBySearchRequest(SearchRequest searchRequest, Pageable pageable);
+    RoomDetailsDto getRoomDetails(Integer roomId);
 }

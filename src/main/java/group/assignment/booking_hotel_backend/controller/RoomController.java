@@ -127,4 +127,14 @@ public class RoomController {
             return ResponseEntity.status(500).body("Error searching rooms: " + e.getMessage());
         }
     }
+
+    @GetMapping("/{roomId}")
+    public ResponseEntity<?> getRoomDetails(@PathVariable Integer roomId) {
+        try {
+            RoomDetailsDto roomDetails = roomService.getRoomDetails(roomId);
+            return ResponseEntity.ok(roomDetails);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error retrieving room details: " + e.getMessage());
+        }
+    }
 }

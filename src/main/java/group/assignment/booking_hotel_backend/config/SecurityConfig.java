@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/service/**").permitAll()
                         .requestMatchers("api/search-suggestions").permitAll()
 
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

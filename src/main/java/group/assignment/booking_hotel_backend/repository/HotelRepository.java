@@ -1,7 +1,5 @@
 package group.assignment.booking_hotel_backend.repository;
 
-import group.assignment.booking_hotel_backend.dto.AddressDto;
-import group.assignment.booking_hotel_backend.dto.HotelDto;
 import group.assignment.booking_hotel_backend.models.Hotel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +24,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
 
     @Query("SELECT a.district FROM Hotel h JOIN h.address a WHERE h.hotelName = :hotelName")
     List<String> findDistrictByHotelName(@Param("hotelName") String hotelName);
+
+    @Query("SELECT h.hotelName FROM Room r JOIN r.hotel h WHERE r.roomId = :roomId")
+    String findHotelNameByRoomId(@Param("roomId") Integer roomId);
 }
