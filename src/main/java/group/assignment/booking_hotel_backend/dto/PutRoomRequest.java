@@ -1,8 +1,16 @@
 package group.assignment.booking_hotel_backend.dto;
 
-import lombok.Data;
+import lombok.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 @Data
 public class PutRoomRequest {
     private int roomId;
@@ -18,10 +26,29 @@ public class PutRoomRequest {
     private double extraAdult;
     private String description;
 
-    // Danh sách ID của các service đi kèm
-    private List<Integer> serviceDtoList;
+    // Updated to include service IDs directly
+    private List<Integer> serviceIds;
 
-    // Danh sách ID của các RoomImage muốn giữ lại
+    // Image IDs to keep
     private List<Integer> roomImageUrls;
-}
 
+    // Mapping to JSON for handling in the controller
+    public Map<String, Object> toJson() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("roomId", roomId);
+        map.put("roomName", roomName);
+        map.put("area", area);
+        map.put("comboPrice2h", comboPrice2h);
+        map.put("pricePerNight", pricePerNight);
+        map.put("extraHourPrice", extraHourPrice);
+        map.put("standardOccupancy", standardOccupancy);
+        map.put("maxOccupancy", maxOccupancy);
+        map.put("numChildrenFree", numChildrenFree);
+        map.put("bedNumber", bedNumber);
+        map.put("extraAdult", extraAdult);
+        map.put("description", description);
+        map.put("serviceIds", serviceIds);
+        map.put("roomImageUrls", roomImageUrls);
+        return map;
+    }
+}
