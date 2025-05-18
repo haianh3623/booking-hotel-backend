@@ -5,6 +5,7 @@ import group.assignment.booking_hotel_backend.mapper.BookingMapper;
 import group.assignment.booking_hotel_backend.models.*;
 import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.BookingService;
+import group.assignment.booking_hotel_backend.services.FirebaseMessagingService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,141 +32,8 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final BillRepository billRepository;
     private final UserRepository userRepository;
-//    @Override
-//    public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
-//        System.out.println(request);
-//        List<Hotel> hotels;
-//
-//        if (request.getCity() != null && !request.getCity().isEmpty()
-//                && request.getDistrict() != null && !request.getDistrict().isEmpty()) {
-//            hotels = hotelRepository.findByAddressCityAndAddressDistrict(
-//                    request.getCity(), request.getDistrict()
-//            );
-//        } else {
-//            hotels = hotelRepository.findAll();
-//        }
-//
-//        System.out.println("Hi1");
-//        for (Hotel hotel : hotels) {
-//            System.out.println(hotel.getHotelName());
-//        }
-//
-//        List<BookingSearchResponse> results = new ArrayList<>();
-//
-//        LocalDateTime checkIn = parseDateTime(request.getCheckInDate(), request.getCheckInTime());
-//        LocalDateTime checkOut = parseDateTime(request.getCheckOutDate(), request.getCheckOutTime());
-//
-//        for (Hotel hotel : hotels) {
-//            for (Room room : hotel.getRoomList()) {
-//                // 2. Lọc dịch vụ theo yêu cầu
-//                List<String> roomServiceNames = room.getServiceList().stream()
-//                        .map(Service::getServiceName)
-//                        .collect(Collectors.toList());
-//
-//                String keyword = request.getInfoSearch();
-//                if (keyword != null && !keyword.trim().isEmpty()) {
-//                    String lowerKeyword = keyword.trim().toLowerCase();
-//
-//                    String hotelName = hotel.getHotelName() != null ? hotel.getHotelName().toLowerCase() : "";
-//                    String roomName = room.getRoomName() != null ? room.getRoomName().toLowerCase() : "";
-//                    String roomDesc = room.getDescription() != null ? room.getDescription().toLowerCase() : "";
-//                    String city = hotel.getAddress().getCity() != null ? hotel.getAddress().getCity().toLowerCase() : "";
-//                    String district = hotel.getAddress().getDistrict() != null ? hotel.getAddress().getDistrict().toLowerCase() : "";
-//                    String ward = hotel.getAddress().getWard() != null ? hotel.getAddress().getWard().toLowerCase() : "";
-//                    String specific = hotel.getAddress().getSpecificAddress() != null ? hotel.getAddress().getSpecificAddress().toLowerCase() : "";
-//
-//                    boolean match = hotelName.contains(lowerKeyword)
-//                            || roomName.contains(lowerKeyword)
-//                            || roomDesc.contains(lowerKeyword)
-//                            || city.contains(lowerKeyword)
-//                            || district.contains(lowerKeyword)
-//                            || ward.contains(lowerKeyword)
-//                            || specific.contains(lowerKeyword);
-//
-//                    if (!match) continue;
-//                }
-//
-//                if (request.getServices() != null && !roomServiceNames.containsAll(request.getServices())) {
-//                    continue;
-//                }
-//                if(request.getAdults() + request.getChildren() > room.getMaxOccupancy()){
-//                    continue;
-//                }
-//                if(request.getBedNumber() != room.getBedNumber()){
-//                    continue;
-//                }
-//                System.out.println("Hi2");
-//                for (String serviceName : request.getServices()) {
-//                    System.out.println(serviceName);
-//                }
-//
-//
-//                // 3. Kiểm tra xem phòng có bị trùng lịch không
-//                boolean isAvailable = isAvailable(room, checkIn, checkOut);
-//                if (!isAvailable) continue;
-//
-//                System.out.println("Hi3");
-//                System.out.println(isAvailable);
-//
-//
-//                // 4. Tính tổng giá tiền
-//                double price = calculateTotalPrice(request, room);
-//                System.out.println(4);
-//                System.out.println(price);
-//
-//                // 5. Lọc theo khoảng giá
-//                if (request.getPriceFrom() != null && price < request.getPriceFrom()) continue;
-//                if (request.getPriceTo() != null && price > request.getPriceTo()) continue;
-//                System.out.println(5);
-//
-//                results.add(BookingSearchResponse.builder()
-//                        .roomId(room.getRoomId())
-//                        .roomName(room.getRoomName())
-//                        .price(price)
-//                        .hotelName(hotel.getHotelName())
-//                        .roomImg(room.getRoomImg())
-//                        .address(hotel.getAddress().getSpecificAddress())
-//                        .services(roomServiceNames)
-//                        .checkIn(formatDateTime(checkIn))
-//                        .checkOut(formatDateTime(checkOut))
-//                        .adults(request.getAdults())
-//                        .children(request.getChildren())
-//                        .bedNumber(request.getBedNumber())
-//                        .build());
-//            }
-//        }
-//
-//        System.out.println("Hi4");
-//        System.out.println(results.size());
-//        for (BookingSearchResponse result : results) {
-//            System.out.println(result);
-//        }
-//
-//        // 6. Sắp xếp
-//        Comparator<BookingSearchResponse> comparator = null;
-//
-//        switch (request.getSortBy()) {
-//            case "price_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//            case "price_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
-//                break;
-//            case "rating_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating);
-//                break;
-//            case "rating_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating).reversed();
-//                break;
-//            default:
-//                // Nếu không có sortBy hoặc không khớp, sắp xếp theo giá tăng dần mặc định
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//        }
-//
-//        results.sort(comparator);
-//        return results;
-//    }
+
+    private FirebaseMessagingService firebaseMessagingService;
 
     @Override
     public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
@@ -434,8 +303,21 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
+        BookingStatus oldStatus = booking.getStatus();
         booking.setStatus(newStatus);
         Booking updatedBooking = bookingRepository.save(booking);
+        
+        // Gửi thông báo nếu trạng thái thay đổi
+        if (!oldStatus.equals(newStatus)) {
+            try {
+                firebaseMessagingService.sendBookingStatusUpdateNotification(updatedBooking);
+            } catch (Exception e) {
+                // Log lỗi nhưng không throw exception để không ảnh hưởng đến luồng chính
+                log.error("Failed to send booking status notification for booking {}: {}", 
+                        bookingId, e.getMessage());
+            }
+        }
+        
         return updatedBooking;
     }
 
