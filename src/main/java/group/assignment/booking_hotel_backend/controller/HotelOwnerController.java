@@ -84,11 +84,13 @@ public class HotelOwnerController {
      * @return List of hotels owned by the user
      */
     @GetMapping("/hotels/{userId}")
-    public ResponseEntity<List<Hotel>> getHotelsByUser(@PathVariable Integer userId) {
+    public ResponseEntity<List<HotelDto>> getHotelsByUser(@PathVariable Integer userId) {
         List<Hotel> hotels = hotelService.findByUserId(userId);
-        return ResponseEntity.ok(hotels);
+        List<HotelDto> hotelDtos = hotels.stream()
+                .map(hotel -> HotelMapper.mapToHotelDto(hotel, new HotelDto()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(hotelDtos);
     }
-
     /**
      * Get hotel by ID
      * @param hotelId ID of the hotel
