@@ -1,7 +1,5 @@
 package group.assignment.booking_hotel_backend.dto;
 
-public package group.assignment.booking_hotel_backend.dto;
-
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -20,6 +18,4 @@ public class ReviewResponseForOwnerDto {
     private String roomName;
     private LocalDateTime createdAt;
     private String ownerReply;
-} {
-    
 }

@@ -502,6 +502,21 @@ public class HotelOwnerController {
     }
 
     /**
+     * Helper method to map Review to ReviewResponseForOwnerDto
+     */
+    private ReviewResponseForOwnerDto mapToReviewResponseForOwner(Review review) {
+        return ReviewResponseForOwnerDto.builder()
+                .reviewId(review.getReviewId())
+                .content(review.getContent())
+                .rating(review.getRating())
+                .guestName(review.getBooking().getUser().getFullName())
+                .roomName(review.getBooking().getRoom().getRoomName())
+                .createdAt(review.getCreatedAt())
+                .ownerReply(review.getOwnerReply())
+                .build();
+    }
+
+    /**
      * Reply to a review
      * @param reviewId ID of the review
      * @param replyRequest Request containing the reply
@@ -534,20 +549,5 @@ public class HotelOwnerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Failed to add reply"));
         }
-    }
-
-    /**
-     * Helper method to map Review to ReviewResponseForOwnerDto
-     */
-    private ReviewResponseForOwnerDto mapToReviewResponseForOwner(Review review) {
-        return ReviewResponseForOwnerDto.builder()
-                .reviewId(review.getReviewId())
-                .content(review.getContent())
-                .rating(review.getRating())
-                .guestName(review.getBooking().getUser().getFullName())
-                .roomName(review.getBooking().getRoom().getRoomName())
-                .createdAt(review.getCreatedAt())
-                .ownerReply(review.getOwnerReply())
-                .build();
     }
 }
