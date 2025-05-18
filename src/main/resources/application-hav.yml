@@ -36,9 +36,10 @@ jwt:
 firebase:
   enabled: true
   service-account-key: firebase-service-account.json
+  project-id: mobile-hotel-526d5
 
 logging:
   level:
-    root: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+    com.google.firebase: DEBUG
+    com.google.api.client: DEBUG
+    org.apache.http: DEBUG

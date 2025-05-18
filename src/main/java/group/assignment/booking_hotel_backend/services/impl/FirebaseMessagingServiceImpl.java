@@ -1,222 +1,120 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.MulticastMessage;
-import com.google.firebase.messaging.Notification;
-import com.google.firebase.messaging.BatchResponse;
+import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
+import com.google.firebase.messaging.*;
 import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.DeviceToken;
 import group.assignment.booking_hotel_backend.services.DeviceTokenService;
 import group.assignment.booking_hotel_backend.services.FirebaseMessagingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class FirebaseMessagingServiceImpl implements FirebaseMessagingService {
-    
+
     private final DeviceTokenService deviceTokenService;
     private final FirebaseMessaging firebaseMessaging;
-    
-    // Constructor-based dependency injection with optional dependencies
-    public FirebaseMessagingServiceImpl(
-            @Autowired(required = false) DeviceTokenService deviceTokenService,
-            @Autowired(required = false) FirebaseMessaging firebaseMessaging) {
+
+    @Autowired
+    public FirebaseMessagingServiceImpl(DeviceTokenService deviceTokenService, FirebaseMessaging firebaseMessaging) {
         this.deviceTokenService = deviceTokenService;
         this.firebaseMessaging = firebaseMessaging;
     }
-    
+
     @Override
-    @Async("taskExecutor")
     public void sendBookingStatusUpdateNotification(Booking booking) {
-        if (!isFirebaseEnabled()) {
-            log.debug("Firebase not enabled, skipping notification for booking {}", booking.getBookingId());
-            return;
-        }
-        
-        try {
-            Integer userId = booking.getUser().getUserId();
-            String title = getNotificationTitle(booking);
-            String body = getNotificationBody(booking);
-            
-            // Get user's device tokens
-            List<DeviceToken> deviceTokens = deviceTokenService.getActiveTokensByUserId(userId);
-            
-            if (deviceTokens.isEmpty()) {
-                log.warn("No active device tokens found for user: {}", userId);
-                return;
-            }
-            
-            List<String> tokens = deviceTokens.stream()
-                    .map(DeviceToken::getDeviceToken)
-                    .collect(Collectors.toList());
-            
-            // Send notification asynchronously
-            sendNotificationToTokensAsync(tokens, title, body, buildNotificationData(booking))
-                .thenAccept(result -> {
-                    log.info("Booking status notification sent to user {} for booking {}. Success: {}, Failures: {}", 
-                            userId, booking.getBookingId(), result.getSuccessCount(), result.getFailureCount());
-                })
-                .exceptionally(throwable -> {
-                    log.error("Error sending booking status notification for booking {}: {}", 
-                            booking.getBookingId(), throwable.getMessage());
-                    return null;
-                });
-            
-        } catch (Exception e) {
-            log.error("Error preparing booking status notification: {}", e.getMessage(), e);
-        }
+        if (!isFirebaseEnabled()) return;
+
+        Integer userId = booking.getUser().getUserId();
+        String title = getNotificationTitle(booking);
+        String body = getNotificationBody(booking);
+        Map<String, String> data = buildNotificationData(booking);
+
+        sendToUser(userId, title, body, data);
     }
-    
+
     @Override
-    @Async("taskExecutor")
     public void sendNotificationToUser(Integer userId, String title, String body) {
-        if (!isFirebaseEnabled()) {
-            log.debug("Firebase not enabled, skipping notification for user {}", userId);
-            return;
-        }
-        
-        try {
-            List<DeviceToken> deviceTokens = deviceTokenService.getActiveTokensByUserId(userId);
-            
-            if (deviceTokens.isEmpty()) {
-                log.warn("No active device tokens found for user: {}", userId);
-                return;
-            }
-            
-            List<String> tokens = deviceTokens.stream()
-                    .map(DeviceToken::getDeviceToken)
-                    .collect(Collectors.toList());
-            
-            sendNotificationToTokensAsync(tokens, title, body, null)
-                .thenAccept(result -> {
-                    log.info("Notification sent to user {}. Success: {}, Failures: {}", 
-                            userId, result.getSuccessCount(), result.getFailureCount());
-                })
-                .exceptionally(throwable -> {
-                    log.error("Error sending notification to user {}: {}", userId, throwable.getMessage());
-                    return null;
-                });
-            
-        } catch (Exception e) {
-            log.error("Error preparing notification for user {}: {}", userId, e.getMessage(), e);
-        }
+        sendToUser(userId, title, body, null);
     }
-    
+
     @Override
-    @Async("taskExecutor")
     public void sendNotificationToTokens(List<String> tokens, String title, String body) {
+        if (tokens == null || tokens.isEmpty() || !isFirebaseEnabled()) return;
+
         sendNotificationToTokensAsync(tokens, title, body, null)
-            .thenAccept(result -> {
-                log.info("Notification sent to {} tokens. Success: {}, Failures: {}", 
-                        tokens.size(), result.getSuccessCount(), result.getFailureCount());
-            })
-            .exceptionally(throwable -> {
-                log.error("Error sending notification to tokens: {}", throwable.getMessage());
-                return null;
-            });
+                .thenAccept(this::handleResult)
+                .exceptionally(e -> { log.error("Send notification error: ", e); return null; });
     }
-    
-    /**
-     * Internal method to send notifications asynchronously and return a CompletableFuture
-     */
+
+    private void sendToUser(Integer userId, String title, String body, Map<String, String> data) {
+        if (!isFirebaseEnabled()) return;
+
+        List<String> tokens = deviceTokenService.getActiveTokensByUserId(userId).stream()
+                .map(DeviceToken::getDeviceToken)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (tokens.isEmpty()) return;
+
+        sendNotificationToTokensAsync(tokens, title, body, data)
+                .thenAccept(this::handleResult)
+                .exceptionally(e -> { log.error("Send notification error: ", e); return null; });
+    }
+
     private CompletableFuture<BatchResponse> sendNotificationToTokensAsync(
             List<String> tokens, String title, String body, Map<String, String> data) {
-        
-        if (!isFirebaseEnabled()) {
-            log.debug("Firebase not enabled, skipping notification");
-            return CompletableFuture.completedFuture(null);
-        }
-        
-        if (tokens.isEmpty()) {
-            log.warn("No tokens provided for notification");
-            return CompletableFuture.completedFuture(null);
-        }
-        
+
+        List<Message> messages = tokens.stream()
+                .map(token -> {
+                    Message.Builder builder = Message.builder()
+                            .setToken(token)
+                            .setNotification(Notification.builder().setTitle(title).setBody(body).build());
+                    if (data != null) builder.putAllData(data);
+                    return builder.build();
+                })
+                .collect(Collectors.toList());
+
         try {
-            Notification notification = Notification.builder()
-                    .setTitle(title)
-                    .setBody(body)
-                    .build();
-            
-            MulticastMessage.Builder messageBuilder = MulticastMessage.builder()
-                    .setNotification(notification)
-                    .addAllTokens(tokens);
-            
-            // Add data payload if provided
-            if (data != null && !data.isEmpty()) {
-                messageBuilder.putAllData(data);
-            }
-            
-            MulticastMessage message = messageBuilder.build();
-            
-            // Return the CompletableFuture directly
-            return firebaseMessaging.sendMulticastAsync(message)
-                .toCompletableFuture()
-                .thenApply(batchResponse -> {
-                    // Handle failed tokens (optional: you can implement token cleanup here)
-                    if (batchResponse.getFailureCount() > 0) {
-                        log.warn("Some notifications failed to send. Failures: {} out of {}", 
-                                batchResponse.getFailureCount(), tokens.size());
-                        
-                        // You can iterate through responses to identify failed tokens
-                        // and potentially remove them from the database
-                        // handleFailedTokens(tokens, batchResponse);
-                    }
-                    return batchResponse;
-                });
-                
-        } catch (Exception e) {
-            log.error("Error creating multicast message: {}", e.getMessage(), e);
-            CompletableFuture<BatchResponse> future = new CompletableFuture<>();
-            future.completeExceptionally(e);
-            return future;
-        }
-    }
-    
-    /**
-     * Optional: Handle failed tokens by removing them from the database
-     */
-    @SuppressWarnings("unused")
-    private void handleFailedTokens(List<String> tokens, BatchResponse batchResponse) {
-        if (deviceTokenService == null) return;
-        
-        List<com.google.firebase.messaging.SendResponse> responses = batchResponse.getResponses();
-        for (int i = 0; i < responses.size(); i++) {
-            com.google.firebase.messaging.SendResponse response = responses.get(i);
-            if (!response.isSuccessful()) {
-                String failedToken = tokens.get(i);
-                String errorCode = response.getException() != null ? 
-                    response.getException().getMessagingErrorCode().name() : "UNKNOWN";
-                
-                // Remove invalid tokens
-                if ("INVALID_REGISTRATION_TOKEN".equals(errorCode) || 
-                    "REGISTRATION_TOKEN_NOT_REGISTERED".equals(errorCode)) {
-                    log.info("Removing invalid token: {}", failedToken);
-                    // You would need to implement this method in DeviceTokenService
-                    // deviceTokenService.removeToken(failedToken);
+            ApiFuture<BatchResponse> future = firebaseMessaging.sendEachAsync(messages);
+            CompletableFuture<BatchResponse> completableFuture = new CompletableFuture<>();
+            ApiFutures.addCallback(future, new ApiFutureCallback<>() {
+                public void onSuccess(BatchResponse result) { completableFuture.complete(result); }
+                public void onFailure(Throwable t) {
+                    log.error("Firebase sendAllAsync failed", t);
+                    completableFuture.completeExceptionally(t);
                 }
+            }, Runnable::run);
+            return completableFuture;
+        } catch (Exception e) {
+            log.error("Error sending batch notification", e);
+            return CompletableFuture.completedFuture(null);
+        }
+    }
+
+    private void handleResult(BatchResponse response) {
+        if (response == null || response.getFailureCount() == 0) return;
+
+        for (int i = 0; i < response.getResponses().size(); i++) {
+            SendResponse res = response.getResponses().get(i);
+            if (!res.isSuccessful()) {
+                log.warn("Notification failed: {}", res.getException().getMessage());
             }
         }
     }
-    
+
     private boolean isFirebaseEnabled() {
-        boolean enabled = firebaseMessaging != null && deviceTokenService != null;
-        if (!enabled) {
-            log.debug("Firebase disabled - FirebaseMessaging: {}, DeviceTokenService: {}", 
-                     firebaseMessaging != null, deviceTokenService != null);
-        }
-        return enabled;
+        return firebaseMessaging != null && deviceTokenService != null;
     }
-    
+
     private String getNotificationTitle(Booking booking) {
         return switch (booking.getStatus()) {
             case CONFIRMED -> "Đặt phòng được xác nhận";
@@ -224,20 +122,19 @@ public class FirebaseMessagingServiceImpl implements FirebaseMessagingService {
             default -> "Cập nhật đặt phòng";
         };
     }
-    
+
     private String getNotificationBody(Booking booking) {
         return switch (booking.getStatus()) {
             case CONFIRMED -> String.format(
-                "Đặt phòng #%d tại %s đã được xác nhận. Vui lòng chuẩn bị cho chuyến đi của bạn!",
-                booking.getBookingId(), booking.getRoom().getHotel().getHotelName());
+                    "Đặt phòng #%d tại %s đã được xác nhận. Vui lòng chuẩn bị cho chuyến đi của bạn!",
+                    booking.getBookingId(), booking.getRoom().getHotel().getHotelName());
             case CANCELLED -> String.format(
-                "Đặt phòng #%d tại %s đã bị hủy. Vui lòng liên hệ khách sạn nếu có thắc mắc.",
-                booking.getBookingId(), booking.getRoom().getHotel().getHotelName());
-            default -> String.format(
-                "Đặt phòng #%d đã được cập nhật trạng thái.", booking.getBookingId());
+                    "Đặt phòng #%d tại %s đã bị hủy. Vui lòng liên hệ khách sạn nếu có thắc mắc.",
+                    booking.getBookingId(), booking.getRoom().getHotel().getHotelName());
+            default -> String.format("Đặt phòng #%d đã được cập nhật trạng thái.", booking.getBookingId());
         };
     }
-    
+
     private Map<String, String> buildNotificationData(Booking booking) {
         Map<String, String> data = new HashMap<>();
         data.put("type", "booking_status_update");

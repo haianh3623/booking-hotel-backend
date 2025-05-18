@@ -30,12 +30,15 @@ jwt:
   secret: 2cd3cdac25884e6837a7e06ed4eeae679201b200872a4175117d204568871394
   expiration: 86400000
 
+# Firebase configuration
 firebase:
   enabled: true
   service-account-key: firebase-service-account.json
+  project-id: mobile-hotel-526d5
 
 logging:
   level:
-    root: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+    com.google.firebase: DEBUG
+    com.google.api.client: DEBUG
+    org.apache.http: DEBUG
+

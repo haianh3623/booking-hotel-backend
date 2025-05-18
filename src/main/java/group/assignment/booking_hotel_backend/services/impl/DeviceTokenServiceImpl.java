@@ -72,4 +72,37 @@ public class DeviceTokenServiceImpl implements DeviceTokenService {
     public boolean isTokenExists(String token) {
         return deviceTokenRepository.findByDeviceToken(token).isPresent();
     }
+    
+    @Override
+    @Transactional
+    public void removeInvalidToken(String token) {
+        try {
+            Optional<DeviceToken> deviceToken = deviceTokenRepository.findByDeviceToken(token);
+            if (deviceToken.isPresent()) {
+                DeviceToken tokenEntity = deviceToken.get();
+                tokenEntity.setIsActive(false);
+                deviceTokenRepository.save(tokenEntity);
+                log.info("Marked invalid token as inactive: {}", token);
+            }
+        } catch (Exception e) {
+            log.error("Error removing invalid token {}: {}", token, e.getMessage());
+        }
+    }
+    
+    @Override
+    @Transactional
+    public void cleanupInvalidTokens(List<String> invalidTokens) {
+        if (invalidTokens == null || invalidTokens.isEmpty()) {
+            return;
+        }
+        
+        try {
+            for (String token : invalidTokens) {
+                removeInvalidToken(token);
+            }
+            log.info("Cleaned up {} invalid tokens", invalidTokens.size());
+        } catch (Exception e) {
+            log.error("Error during batch cleanup of invalid tokens: {}", e.getMessage());
+        }
+    }
 }
