@@ -34,7 +34,6 @@ jwt:
 firebase:
   enabled: true
   service-account-key: firebase-service-account.json
-  project-id: mobile-hotel-526d5
 
 logging:
   level:
