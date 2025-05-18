@@ -7,6 +7,7 @@ import group.assignment.booking_hotel_backend.dto.BookingStatsDto;
 import group.assignment.booking_hotel_backend.dto.CreateRoomRequest;
 import group.assignment.booking_hotel_backend.dto.CreateRoomResponse;
 import group.assignment.booking_hotel_backend.dto.PutRoomRequest;
+import group.assignment.booking_hotel_backend.dto.ReviewResponseForOwnerDto;
 import group.assignment.booking_hotel_backend.dto.ReviewStatsDto;
 import group.assignment.booking_hotel_backend.dto.RoomResponseHotelOwnerDto;
 import group.assignment.booking_hotel_backend.mapper.BookingMapper;
@@ -15,6 +16,7 @@ import group.assignment.booking_hotel_backend.mapper.RoomMapper;
 import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.models.Hotel;
+import group.assignment.booking_hotel_backend.models.Review;
 import group.assignment.booking_hotel_backend.models.Room;
 import group.assignment.booking_hotel_backend.models.RoomImage;
 import group.assignment.booking_hotel_backend.models.Service;
@@ -46,6 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import group.assignment.booking_hotel_backend.dto.HotelDto;
@@ -476,5 +479,75 @@ public class HotelOwnerController {
     public ResponseEntity<Boolean> deleteRoom(@PathVariable Integer id) {
         boolean deleted = roomService.deleteById(id);
         return ResponseEntity.ok(deleted);
+    }
+
+    @GetMapping("/reviews/{hotelId}")
+    public ResponseEntity<List<ReviewResponseForOwnerDto>> getAllReviews(
+            @PathVariable Integer hotelId,
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "desc") String order,
+            @RequestParam(required = false) Integer rating) {
+        
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(offset, limit, Sort.by(direction, "createdAt"));
+
+        Page<Review> reviewsPage = reviewService.getReviewsByHotelId(hotelId, query, rating, pageable);
+        List<ReviewResponseForOwnerDto> reviewDtos = reviewsPage.getContent().stream()
+                .map(review -> mapToReviewResponseForOwner(review))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(reviewDtos);
+    }
+
+    /**
+     * Reply to a review
+     * @param reviewId ID of the review
+     * @param replyRequest Request containing the reply
+     * @return Success status
+     */
+    @PostMapping("/review/{reviewId}/reply")
+    public ResponseEntity<Map<String, Object>> replyToReview(
+            @PathVariable Integer reviewId,
+            @RequestBody Map<String, String> replyRequest) {
+        try {
+            String reply = replyRequest.get("reply");
+            if (reply == null || reply.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Reply cannot be empty"));
+            }
+
+            // Update the review with the reply
+            Review review = reviewService.findById(reviewId);
+            if (review == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Assuming you have an ownerReply field in Review model
+            review.setOwnerReply(reply.trim());
+            reviewService.save(review);
+
+            return ResponseEntity.ok(Map.of("success", true, "message", "Reply added successfully"));
+        } catch (Exception e) {
+            logger.error("Error replying to review", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Failed to add reply"));
+        }
+    }
+
+    /**
+     * Helper method to map Review to ReviewResponseForOwnerDto
+     */
+    private ReviewResponseForOwnerDto mapToReviewResponseForOwner(Review review) {
+        return ReviewResponseForOwnerDto.builder()
+                .reviewId(review.getReviewId())
+                .content(review.getContent())
+                .rating(review.getRating())
+                .guestName(review.getBooking().getUser().getFullName())
+                .roomName(review.getBooking().getRoom().getRoomName())
+                .createdAt(review.getCreatedAt())
+                .ownerReply(review.getOwnerReply())
+                .build();
     }
 }

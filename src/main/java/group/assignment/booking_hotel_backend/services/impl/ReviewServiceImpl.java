@@ -14,6 +14,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Service
 public class ReviewServiceImpl implements ReviewService {
     @Autowired
@@ -100,5 +103,10 @@ public class ReviewServiceImpl implements ReviewService {
             : ((currentAvg - lastAvg) / lastAvg) * 100.0;
     
         return new ReviewStatsDto(currentCount, reviewCountChange, currentAvg, avgRatingChange);
+    }
+
+    @Override
+    public Page<Review> getReviewsByHotelId(Integer hotelId, String query, Integer rating, Pageable pageable) {
+        return reviewRepository.findByHotelIdAndQueryAndRating(hotelId, query.toLowerCase(), rating, pageable);
     }
 }
