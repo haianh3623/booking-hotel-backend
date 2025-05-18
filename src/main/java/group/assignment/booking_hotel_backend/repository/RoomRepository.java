@@ -16,14 +16,15 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
 
     @Query("SELECT new group.assignment.booking_hotel_backend.dto.RoomSearchListDto(" +
             "r.roomId, r.roomName, h.hotelName, r.area, r.standardOccupancy, " +
-            "r.roomImg, r.bedNumber, 0.0, 0) " +  // rating và reviewCount tạm hardcode
+            "r.roomImg, r.bedNumber, 0.0, 0, r.maxOccupancy, r.numChildrenFree) " +  // rating và reviewCount tạm hardcode
             "FROM Room r " +
             "JOIN r.hotel h " )
     List<RoomSearchListDto> findAllRoomList();
 
     @Query("SELECT new group.assignment.booking_hotel_backend.dto.RoomSearchListDto(" +
             "r.roomId, r.roomName, h.hotelName, r.area, r.standardOccupancy, " +
-            "r.roomImg, r.bedNumber, 0.0, 0) " +  // rating và reviewCount tạm hardcode
+            "r.roomImg, r.bedNumber, 0.0, 0," +
+            "r.maxOccupancy, r.numChildrenFree) " +  // rating và reviewCount tạm hardcode
             "FROM Room r " +
             "JOIN r.hotel h " +
             "JOIN h.address a " +  // join với bảng Address

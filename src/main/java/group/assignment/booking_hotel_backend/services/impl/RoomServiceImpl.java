@@ -178,7 +178,7 @@ public class RoomServiceImpl implements RoomService {
             }
 
             if (searchRequest.getNumOfChild() != null && searchRequest.getNumOfChild() > 0) {
-                if (room.getStandardOccupancy() < searchRequest.getNumOfChild()) {
+                if (room.getNumChildrenFree() < searchRequest.getNumOfChild()) {
                     iterator.remove();
                     continue;
                 }

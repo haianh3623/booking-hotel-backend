@@ -27,4 +27,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
 
     @Query("SELECT h.hotelName FROM Room r JOIN r.hotel h WHERE r.roomId = :roomId")
     String findHotelNameByRoomId(@Param("roomId") Integer roomId);
+
+    @Query("SELECT h.name FROM Hotel h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<String> findHotelNamesByKeyword(@Param("keyword") String keyword);
 }

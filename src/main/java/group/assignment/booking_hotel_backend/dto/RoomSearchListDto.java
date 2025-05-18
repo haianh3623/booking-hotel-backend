@@ -13,6 +13,8 @@ public class RoomSearchListDto {
     private String hotelName;
     private Double area;
     private Integer standardOccupancy;
+    private Integer maxOccupancy;
+    private Integer numChildrenFree;
     private String roomImg;
     private Integer bedNumber;
     private Double rating;
@@ -20,7 +22,8 @@ public class RoomSearchListDto {
     private String address;
 
     RoomSearchListDto(Integer roomId, String roomName, String hotelName, Double area, Integer standardOccupancy,
-                     String roomImg, Integer bedNumber, Double rating, Integer reviewCount) {
+                     String roomImg, Integer bedNumber, Double rating, Integer reviewCount, Integer maxOccupancy,
+                      Integer numChildrenFree) {
         this.roomId = roomId;
         this.roomName = roomName;
         this.hotelName = hotelName;
@@ -30,5 +33,9 @@ public class RoomSearchListDto {
         this.bedNumber = bedNumber;
         this.rating = rating;
         this.reviewCount = reviewCount;
+        this.maxOccupancy = maxOccupancy;
+        this.numChildrenFree = numChildrenFree;
     }
+
+
 }
