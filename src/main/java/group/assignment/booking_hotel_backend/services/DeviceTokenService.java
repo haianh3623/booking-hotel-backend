@@ -9,4 +9,10 @@ public interface DeviceTokenService {
     void deactivateToken(Integer userId, String token);
     void deactivateAllUserTokens(Integer userId);
     boolean isTokenExists(String token);
+    
+    // New method for removing invalid tokens
+    void removeInvalidToken(String token);
+    
+    // Batch cleanup method
+    void cleanupInvalidTokens(List<String> invalidTokens);
 }

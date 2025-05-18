@@ -7,6 +7,7 @@ import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.BookingService;
 import group.assignment.booking_hotel_backend.services.FirebaseMessagingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Sort;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
@@ -33,6 +35,7 @@ public class BookingServiceImpl implements BookingService {
     private final BillRepository billRepository;
     private final UserRepository userRepository;
 
+    @Autowired(required = false)
     private FirebaseMessagingService firebaseMessagingService;
 
     @Override
@@ -137,26 +140,6 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
-//        Comparator<BookingSearchResponse> comparator;
-//
-//        switch (request.getSortBy()) {
-//            case "price_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//            case "price_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
-//                break;
-//            case "rating_asc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating);
-//                break;
-//            case "rating_desc":
-//                comparator = Comparator.comparing(BookingSearchResponse::getRating).reversed();
-//                break;
-//            default:
-//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
-//                break;
-//        }
-
         Comparator<BookingSearchResponse> comparator;
 
         switch (request.getSortBy()) {
@@ -230,13 +213,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findAll();
     }
 
-//    @Override
-//    public BookingResponseDto findById(Integer id) {
-//        Booking booking = bookingRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Booking not found"));
-//        return BookingMapper.mapToBookingResponseDto(booking, new BookingResponseDto());
-//    }
-
     @Override
     public Booking findById(Integer id) {
         Booking booking = bookingRepository.findById(id)
@@ -307,8 +283,8 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(newStatus);
         Booking updatedBooking = bookingRepository.save(booking);
         
-        // Gửi thông báo nếu trạng thái thay đổi
-        if (!oldStatus.equals(newStatus)) {
+        // Gửi thông báo nếu trạng thái thay đổi và Firebase service có sẵn
+        if (!oldStatus.equals(newStatus) && firebaseMessagingService != null) {
             try {
                 firebaseMessagingService.sendBookingStatusUpdateNotification(updatedBooking);
             } catch (Exception e) {
@@ -316,6 +292,10 @@ public class BookingServiceImpl implements BookingService {
                 log.error("Failed to send booking status notification for booking {}: {}", 
                         bookingId, e.getMessage());
             }
+        }
+        else {
+            System.out.println("Firebase service is not available or status has not changed for booking " + bookingId);
+            log.info("Firebase service is not available or status has not changed for booking {}", bookingId);
         }
         
         return updatedBooking;

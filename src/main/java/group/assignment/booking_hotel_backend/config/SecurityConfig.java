@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/pdfs/**").permitAll()
                         .requestMatchers("/api/report/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/device-token/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
