@@ -5,6 +5,7 @@ import group.assignment.booking_hotel_backend.mapper.BookingMapper;
 import group.assignment.booking_hotel_backend.models.*;
 import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.BookingService;
+import group.assignment.booking_hotel_backend.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final BillRepository billRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
@@ -189,6 +191,7 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         Booking saved = bookingRepository.save(booking);
+        notificationService.handleBookingEvent(saved, "BOOKING_SUCCESS");
         return BookingMapper.mapToBookingResponseDto(saved, new BookingResponseDto());
     }
 
@@ -272,6 +275,9 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(newStatus);
         Booking updatedBooking = bookingRepository.save(booking);
+        if (newStatus == BookingStatus.CANCELLED) {
+            notificationService.handleBookingEvent(updatedBooking, "BOOKING_CANCEL");
+        }
         return updatedBooking;
     }
 
