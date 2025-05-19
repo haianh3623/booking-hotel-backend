@@ -1,10 +1,9 @@
 package group.assignment.booking_hotel_backend.controller;
 
-import group.assignment.booking_hotel_backend.dto.BookingRequestDto;
-import group.assignment.booking_hotel_backend.dto.BookingResponseDto;
-import group.assignment.booking_hotel_backend.dto.BookingSearchRequest;
-import group.assignment.booking_hotel_backend.dto.BookingSearchResponse;
+import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.mapper.BookingMapper;
+import group.assignment.booking_hotel_backend.mapper.RoomMapper;
+import group.assignment.booking_hotel_backend.mapper.UserMapper;
 import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.services.BookingService;
@@ -85,5 +84,14 @@ public class BookingController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
+    }
+
+    @GetMapping("/owner/{userId}")
+    public ResponseEntity<List<BookingScheduleResponse>> getAllBookingsByHotelOwner(@PathVariable Integer userId) {
+        List<BookingScheduleResponse> bookings = new ArrayList<>();
+        for (Booking booking : bookingService.findAllBookingsByHotelOwner(userId)) {
+            bookings.add(BookingMapper.mapToBookingScheduleResponse(booking, new BookingScheduleResponse(), UserMapper.mapToUserDto(booking.getUser(), new UserDto()), RoomMapper.mapToRoomDto(booking.getRoom(), new RoomResponseDto())));
+        }
+        return ResponseEntity.ok(bookings);
     }
 }

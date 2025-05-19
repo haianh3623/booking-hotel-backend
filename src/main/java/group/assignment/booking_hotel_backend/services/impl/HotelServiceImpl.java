@@ -1,7 +1,9 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
 import group.assignment.booking_hotel_backend.models.Hotel;
+import group.assignment.booking_hotel_backend.models.User;
 import group.assignment.booking_hotel_backend.repository.HotelRepository;
+import group.assignment.booking_hotel_backend.repository.UserRepository;
 import group.assignment.booking_hotel_backend.services.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,12 @@ public class HotelServiceImpl implements HotelService {
     @Autowired
     private HotelRepository hotelRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
-    public void save(Hotel hotel) {
-        hotelRepository.save(hotel);
+    public Hotel save(Hotel hotel) {
+        return hotelRepository.save(hotel);
     }
 
     @Override
@@ -49,5 +54,21 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public List<String> getAllDistricts() {
         return hotelRepository.findDistinctDistricts();
+    }
+
+    @Override
+    public Long count() {
+        return hotelRepository.count();
+    }
+
+    @Override
+    public List<Hotel> findHotelsByRoleOwner(String role) {
+        List<User> usersWithRoleOwner = userRepository.findByRoleList_Name(role);
+        return hotelRepository.findByUserIn(usersWithRoleOwner);
+    }
+
+    @Override
+    public List<Hotel> findHotelsByIdOwner(Integer id) {
+        return hotelRepository.findByUserUserId(id);
     }
 }

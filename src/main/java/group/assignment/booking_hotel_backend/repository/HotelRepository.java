@@ -1,6 +1,7 @@
 package group.assignment.booking_hotel_backend.repository;
 
 import group.assignment.booking_hotel_backend.models.Hotel;
+import group.assignment.booking_hotel_backend.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,5 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
 
     @Query("SELECT h.name FROM Hotel h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<String> findHotelNamesByKeyword(@Param("keyword") String keyword);
+    List<Hotel> findByUserIn(List<User> users);
 }

@@ -110,4 +110,9 @@ public class ReviewServiceImpl implements ReviewService {
     public Page<Review> getReviewsByHotelId(Integer hotelId, String query, Integer rating, Pageable pageable) {
         return reviewRepository.findByHotelIdAndQueryAndRating(hotelId, query.toLowerCase(), rating, pageable);
     }
+
+    @Override
+    public List<ReviewDto> findByRoomId(Integer roomId) {
+        return List.of();
+    }
 }

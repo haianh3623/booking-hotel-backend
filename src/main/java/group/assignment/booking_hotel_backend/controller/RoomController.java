@@ -1,10 +1,6 @@
 package group.assignment.booking_hotel_backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import group.assignment.booking_hotel_backend.dto.CreateRoomRequest;
-import group.assignment.booking_hotel_backend.dto.CreateRoomResponse;
-import group.assignment.booking_hotel_backend.dto.RoomDto;
-import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
 import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.mapper.RoomMapper;
 import group.assignment.booking_hotel_backend.models.*;
@@ -30,6 +26,12 @@ public class RoomController {
     private final FilesStorageService filesStorageService;
     private final ObjectMapper objectMapper;
     private final BookingService bookingService;
+
+    @GetMapping("/top-rated")
+    public ResponseEntity<?> getTopRatedRooms() {
+        List<RoomResponseDto> topRooms = roomService.getTopRatedRooms(5);
+        return ResponseEntity.ok(topRooms);
+    }
 
 
     @PostMapping("/create-with-images")
@@ -132,6 +134,29 @@ public class RoomController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<RoomResponseDto> getRoom(@PathVariable Integer id) {
+        return ResponseEntity.ok(RoomMapper.mapToRoomDto(roomService.findById(id), new RoomResponseDto()));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<RoomResponseDto>> getAllRooms() {
+        List<RoomResponseDto> roomList = new ArrayList<>();
+        for (Room room : roomService.findAll()) {
+            roomList.add(RoomMapper.mapToRoomDto(room, new RoomResponseDto()));
+        }
+        return ResponseEntity.ok(roomList);
+    }
+
+    @GetMapping("/hotel/{hotelId}")
+    public ResponseEntity<List<RoomResponseDto>> getAllRoomsByHotel(@PathVariable Integer hotelId) {
+        List<RoomResponseDto> roomList = new ArrayList<>();
+        for (Room room : roomService.findAllByHotelId(hotelId)) {
+            roomList.add(RoomMapper.mapToRoomDto(room, new RoomResponseDto()));
+        }
+        return ResponseEntity.ok(roomList);
+    }
+
     @GetMapping("/{roomId}")
     public ResponseEntity<?> getRoomDetails(@PathVariable Integer roomId) {
         try {
@@ -142,3 +167,5 @@ public class RoomController {
         }
     }
 }
+
+

@@ -37,12 +37,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
-        // Giả sử bạn có bảng roles liên kết với người dùng
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         for (Role role : user.getRoleList()) {
             authorities.add(new SimpleGrantedAuthority(role.getName()));
         }
-//        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRoles()));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
 

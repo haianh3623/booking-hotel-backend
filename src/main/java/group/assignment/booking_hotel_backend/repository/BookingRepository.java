@@ -1,5 +1,6 @@
 package group.assignment.booking_hotel_backend.repository;
 import group.assignment.booking_hotel_backend.models.Booking;
+import group.assignment.booking_hotel_backend.models.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,6 +44,22 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Page<Booking> findByHotelIdAndQuery(@Param("hotelId") Integer hotelId, @Param("query") String query, Pageable pageable);
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.room.hotel.hotelId = :hotelId")
-    Long countByHotelId(@Param("hotelId") Integer hotelId); 
+    Long countByHotelId(@Param("hotelId") Integer hotelId);
 
+
+    List<Booking> findByCheckInBetweenAndStatus(LocalDateTime start, LocalDateTime end, BookingStatus status);
+    @Query("SELECT SUM(b.price) FROM Booking b " +
+            "JOIN b.bill bi " +
+            "WHERE b.checkIn BETWEEN :startDate AND :endDate " +
+            "AND b.status = 'CONFIRMED' " +
+            "AND bi.paidStatus = true")
+    Double getTotalRevenueBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT b FROM Booking b WHERE b.checkIn >= :startDate AND b.checkOut <= :endDate " +
+            "AND b.status = 'CONFIRMED' AND b.bill.paidStatus = true")
+    List<Booking> findBookingsBetweenDates(@Param("startDate") LocalDateTime startDate,
+                                           @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT b FROM Booking b WHERE b.room.hotel.user.userId = :userId")
+    List<Booking> findAllBookingsByHotelOwner(@Param("userId") Integer userId);
 }

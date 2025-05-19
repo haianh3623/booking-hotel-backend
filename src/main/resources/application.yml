@@ -5,7 +5,7 @@ spring:
   application:
     name: booking-hotel-backend
   profiles:
-    active: "hav"
+    active: "ldha"
 
   security:
     user:

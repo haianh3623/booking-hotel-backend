@@ -44,4 +44,5 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
             "OR LOWER(a.ward) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(a.specificAddress) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<RoomSearchListDto> searchRoomListByKeyword(@Param("keyword") String keyword);
+    List<Room> findAllByHotel_HotelId(Integer hotelId);
 }

@@ -11,23 +11,30 @@ import group.assignment.booking_hotel_backend.dto.ReviewResponseForOwnerDto;
 import group.assignment.booking_hotel_backend.dto.ReviewStatsDto;
 import group.assignment.booking_hotel_backend.dto.RoomResponseHotelOwnerDto;
 import group.assignment.booking_hotel_backend.mapper.BookingMapper;
+import group.assignment.booking_hotel_backend.dto.HotelDto;
+import group.assignment.booking_hotel_backend.dto.RoomDto;
+import group.assignment.booking_hotel_backend.dto.UserDto;
+import group.assignment.booking_hotel_backend.dto.UserResponseDto;
 import group.assignment.booking_hotel_backend.mapper.HotelMapper;
 import group.assignment.booking_hotel_backend.mapper.RoomMapper;
 import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
+import group.assignment.booking_hotel_backend.mapper.UserMapper;
 import group.assignment.booking_hotel_backend.models.Hotel;
 import group.assignment.booking_hotel_backend.models.Review;
+import group.assignment.booking_hotel_backend.models.Role;
 import group.assignment.booking_hotel_backend.models.Room;
 import group.assignment.booking_hotel_backend.models.RoomImage;
 import group.assignment.booking_hotel_backend.models.Service;
 import group.assignment.booking_hotel_backend.repository.ServiceRepository;
 import group.assignment.booking_hotel_backend.services.BookingService;
 import group.assignment.booking_hotel_backend.services.FilesStorageService;
+import group.assignment.booking_hotel_backend.models.User;
 import group.assignment.booking_hotel_backend.services.HotelService;
 import group.assignment.booking_hotel_backend.services.ReviewService;
 import group.assignment.booking_hotel_backend.services.RoomImageService;
 import group.assignment.booking_hotel_backend.services.RoomService;
-
+import group.assignment.booking_hotel_backend.services.UserService;
 import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
@@ -61,7 +68,7 @@ import group.assignment.booking_hotel_backend.dto.HotelDto;
 @RequiredArgsConstructor
 public class HotelOwnerController {
     private static final Logger logger = LoggerFactory.getLogger(HotelOwnerController.class);
-    
+
     private final HotelService hotelService;
     private final RoomService roomService;
     private final ReviewService reviewService;
@@ -105,9 +112,9 @@ public class HotelOwnerController {
         if (hotel == null) {
             return ResponseEntity.notFound().build();
         }
-    
+
     HotelDto hotelDto = HotelMapper.mapToHotelDto(hotel, new HotelDto());
-    
+
     return ResponseEntity.ok(hotelDto);
 }
 
@@ -176,7 +183,7 @@ public class HotelOwnerController {
             @RequestParam(defaultValue = "0") int offset,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "asc") String order) {
-        
+
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, limit, Sort.by(direction, "roomName"));
 
@@ -204,7 +211,7 @@ public class HotelOwnerController {
             @RequestParam(defaultValue = "0") int offset,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "asc") String order) {
-        
+
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, limit, Sort.by(direction, "checkIn"));
 
@@ -230,7 +237,7 @@ public class HotelOwnerController {
             @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages) {
         try {
         logger.info("Creating room with info: {}", roomInfoJson);
-        
+
         // Parse JSON to DTO
         CreateRoomRequest request = objectMapper.readValue(roomInfoJson, CreateRoomRequest.class);
 
@@ -263,7 +270,7 @@ public class HotelOwnerController {
             logger.info("Setting services: {}", request.getServiceIds());
             List<Service> services = serviceRepository.findAllById(request.getServiceIds());
             if (services.size() != request.getServiceIds().size()) {
-                logger.warn("Some service IDs were not found. Found {} out of {}", 
+                logger.warn("Some service IDs were not found. Found {} out of {}",
                     services.size(), request.getServiceIds().size());
             }
             room.setServiceList(services);
@@ -316,7 +323,7 @@ public class HotelOwnerController {
             @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages) {
         try {
             logger.info("Updating room with info: {}", roomInfoJson);
-            
+
             PutRoomRequest request = objectMapper.readValue(roomInfoJson, PutRoomRequest.class);
 
             // Find room to update
@@ -343,7 +350,7 @@ public class HotelOwnerController {
                 logger.info("Updating services: {}", request.getServiceIds());
                 List<Service> services = serviceRepository.findAllById(request.getServiceIds());
                 if (services.size() != request.getServiceIds().size()) {
-                    logger.warn("Some service IDs were not found. Found {} out of {}", 
+                    logger.warn("Some service IDs were not found. Found {} out of {}",
                         services.size(), request.getServiceIds().size());
                 }
                 room.setServiceList(services);
@@ -369,7 +376,7 @@ public class HotelOwnerController {
                     roomImageService.deleteById(image.getImgId());
                 }
             }
-            
+
             // Add new images
             if (extraImages != null && !extraImages.isEmpty()) {
                 for (MultipartFile file : extraImages) {
@@ -489,7 +496,7 @@ public class HotelOwnerController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(required = false) Integer rating) {
-        
+
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(offset, limit, Sort.by(direction, "createdAt"));
 

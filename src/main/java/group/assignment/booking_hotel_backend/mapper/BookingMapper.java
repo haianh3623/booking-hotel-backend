@@ -29,6 +29,18 @@ public class BookingMapper {
         return response;
     }
 
+    public static BookingScheduleResponse mapToBookingScheduleResponse(Booking booking, BookingScheduleResponse response, UserDto user, RoomResponseDto room) {
+        response.setBookingId(booking.getBookingId());
+        response.setCheckIn(booking.getCheckIn());
+        response.setCheckOut(booking.getCheckOut());
+        response.setPrice(booking.getPrice());
+        response.setStatus(booking.getStatus().name());
+        response.setRoomDto(room);
+        response.setUserDto(user);
+        response.setCreatedAt(booking.getCreatedAt());
+        return response;
+    }
+
     public static BookingDto mapToBookingDto(Booking booking, BookingDto dto) {
         dto.setBookingId(booking.getBookingId());
         dto.setCheckIn(booking.getCheckIn());

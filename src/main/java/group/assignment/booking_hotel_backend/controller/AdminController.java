@@ -1,17 +1,66 @@
 package group.assignment.booking_hotel_backend.controller;
 
+import group.assignment.booking_hotel_backend.dto.AdminHomeResponse;
+import group.assignment.booking_hotel_backend.dto.AdminRevenueRequest;
+import group.assignment.booking_hotel_backend.dto.AdminRevenueResponse;
+import group.assignment.booking_hotel_backend.models.Booking;
+import group.assignment.booking_hotel_backend.services.BillService;
+import group.assignment.booking_hotel_backend.services.BookingService;
+import group.assignment.booking_hotel_backend.services.HotelService;
+import group.assignment.booking_hotel_backend.services.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/admin")
 public class AdminController {
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @GetMapping("/")
+//    public ResponseEntity<String> getAdminHome() {
+//        return ResponseEntity.ok("Welcome to admin home");
+//    }
+
+    private final HotelService hotelService;
+    private final UserService userService;
+    private final BookingService bookingService;
+
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/")
-    public ResponseEntity<String> getAdminHome() {
-        return ResponseEntity.ok("Welcome to admin home");
+    public ResponseEntity<AdminHomeResponse> getAdminHome() {
+        Long totalHotels = hotelService.count();
+        Long totalUsers = userService.count();
+        Long totalBookings = bookingService.count();
+
+        AdminHomeResponse response = new AdminHomeResponse(totalHotels, totalUsers, totalBookings);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/revenue/monthly")
+    public ResponseEntity<Map<String, Double>> getDailyRevenue() {
+        Map<String, Double> dailyRevenue = bookingService.getDailyRevenueThisMonth();
+        return ResponseEntity.ok(dailyRevenue);
+    }
+
+    @GetMapping("/revenue/total")
+    public ResponseEntity<Double> getTotalRevenueBetweenDates(
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+        LocalDateTime startDate = LocalDateTime.parse(startDateStr);
+        LocalDateTime endDate = LocalDateTime.parse(endDateStr);
+        Double totalRevenue = bookingService.getTotalRevenueBetweenDates(startDate, endDate);
+        return ResponseEntity.ok(totalRevenue);
+    }
+
+    @PostMapping("/revenue/total")
+    public ResponseEntity<AdminRevenueResponse> getTotalRevenueAndBookingDetails(@RequestBody AdminRevenueRequest revenueRequest) {
+        LocalDateTime startDate = revenueRequest.getStartDate();
+        LocalDateTime endDate = revenueRequest.getEndDate();
+        AdminRevenueResponse revenueResponse = bookingService.getRevenueAndBookingDetails(startDate, endDate);
+        return ResponseEntity.ok(revenueResponse);
     }
 }
