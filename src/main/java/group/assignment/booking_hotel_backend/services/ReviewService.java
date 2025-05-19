@@ -1,4 +1,5 @@
 package group.assignment.booking_hotel_backend.services;
+import group.assignment.booking_hotel_backend.dto.ReviewDto;
 import group.assignment.booking_hotel_backend.dto.ReviewRequestDto;
 import group.assignment.booking_hotel_backend.dto.ReviewStatsDto;
 import group.assignment.booking_hotel_backend.models.Review;
@@ -20,4 +21,5 @@ public interface ReviewService {
     ReviewStatsDto getMonthlyReviewStats(Integer hotel_id);
 
     Page<Review> getReviewsByHotelId(Integer hotelId, String query, Integer rating, Pageable pageable);
+    List<ReviewDto> findByRoomId(Integer roomId);
 }

@@ -282,14 +282,14 @@ public class BookingServiceImpl implements BookingService {
         BookingStatus oldStatus = booking.getStatus();
         booking.setStatus(newStatus);
         Booking updatedBooking = bookingRepository.save(booking);
-        
+
         // Gửi thông báo nếu trạng thái thay đổi và Firebase service có sẵn
         if (!oldStatus.equals(newStatus) && firebaseMessagingService != null) {
             try {
                 firebaseMessagingService.sendBookingStatusUpdateNotification(updatedBooking);
             } catch (Exception e) {
                 // Log lỗi nhưng không throw exception để không ảnh hưởng đến luồng chính
-                log.error("Failed to send booking status notification for booking {}: {}", 
+                log.error("Failed to send booking status notification for booking {}: {}",
                         bookingId, e.getMessage());
             }
         }
@@ -297,7 +297,7 @@ public class BookingServiceImpl implements BookingService {
             System.out.println("Firebase service is not available or status has not changed for booking " + bookingId);
             log.info("Firebase service is not available or status has not changed for booking {}", bookingId);
         }
-        
+
         return updatedBooking;
     }
 
@@ -397,14 +397,14 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingStatsDto> getBookingStatsLastNDaysForHotel(int hotelId, int days) {
         LocalDateTime startDate = LocalDateTime.now().minusDays(days);
         List<Object[]> results = bookingRepository.countBookingsPerDayForHotel(hotelId, startDate);
-    
+
         List<BookingStatsDto> dtos = results.stream()
         .map((Object[] row) -> new BookingStatsDto(
             ((java.sql.Date) row[0]).toLocalDate(),
             (Long) row[1]
         ))
             .collect(Collectors.toList());
-        
+
         return dtos;
     }
 
@@ -423,5 +423,5 @@ public class BookingServiceImpl implements BookingService {
     public Long countBookingsByHotelId(Integer hotelId) {
         return bookingRepository.countByHotelId(hotelId);
     }
-    
+
 }

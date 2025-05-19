@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
     private final Path root = Paths.get("./uploads");
@@ -64,8 +63,6 @@ public class FilesStorageServiceImpl implements FilesStorageService {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
     }
-
-
 
     @Override
     public Resource load(String filename) {

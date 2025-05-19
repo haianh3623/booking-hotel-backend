@@ -5,6 +5,7 @@ import group.assignment.booking_hotel_backend.dto.CreateRoomRequest;
 import group.assignment.booking_hotel_backend.dto.CreateRoomResponse;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
 import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
+import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.mapper.RoomMapper;
 import group.assignment.booking_hotel_backend.models.*;
 import group.assignment.booking_hotel_backend.repository.*;
@@ -108,6 +109,36 @@ public class RoomController {
             return ResponseEntity.ok(RoomMapper.mapToRoomDto(booking.getRoom(), new RoomResponseDto()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error retrieving room: " + e.getMessage());
+        }
+    }
+
+//    @GetMapping("/search")
+//    public ResponseEntity<?> searchRoomSearchList(@RequestParam(value = "keyword", required = false) String keyword) {
+//        try {
+//            List<RoomSearchListDto> roomList = roomService.findRoomByKeyword(keyword, null);
+//            return ResponseEntity.ok(roomList);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(500).body("Error searching rooms: " + e.getMessage());
+//        }
+//    }
+
+    @PostMapping("/search")
+    public ResponseEntity<?> searchRoomListBySearchRequest(@RequestBody SearchRequest req){
+        try {
+            List<RoomSearchListDto> roomList = roomService.findRoomBySearchRequest(req, null);
+            return ResponseEntity.ok(roomList);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error searching rooms: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{roomId}")
+    public ResponseEntity<?> getRoomDetails(@PathVariable Integer roomId) {
+        try {
+            RoomDetailsDto roomDetails = roomService.getRoomDetails(roomId);
+            return ResponseEntity.ok(roomDetails);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error retrieving room details: " + e.getMessage());
         }
     }
 }

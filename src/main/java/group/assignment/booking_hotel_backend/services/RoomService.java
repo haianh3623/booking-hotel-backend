@@ -1,6 +1,8 @@
 package group.assignment.booking_hotel_backend.services;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
+import group.assignment.booking_hotel_backend.dto.RoomSearchListDto;
 import group.assignment.booking_hotel_backend.models.Room;
+import group.assignment.booking_hotel_backend.models.SearchRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -19,4 +21,9 @@ public interface RoomService {
     List<Room> findAll();
     Page<Room> findByHotelId(Integer hotelId, String query, Pageable pageable);
     Long countRoomsByHotelId(Integer hotelId);
+    List<Room> findByHotelId(Integer hotelId);
+
+    List<RoomSearchListDto> findRoomByKeyword(String keyword, Pageable pageable);
+    List<RoomSearchListDto> findRoomBySearchRequest(SearchRequest searchRequest, Pageable pageable);
+    RoomDetailsDto getRoomDetails(Integer roomId);
 }
