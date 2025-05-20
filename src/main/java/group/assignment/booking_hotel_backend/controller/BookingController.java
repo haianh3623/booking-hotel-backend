@@ -9,6 +9,7 @@ import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.services.BookingService;
 import group.assignment.booking_hotel_backend.services.RoomService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/api/booking")
 public class BookingController {
     private final RoomService roomService;

@@ -4,8 +4,6 @@ server:
 spring:
   application:
     name: booking-hotel-backend
-  profiles:
-    active: "pth"
 
   security:
     user:
@@ -13,7 +11,7 @@ spring:
       password: 1234
 
   datasource:
-    url: jdbc:mysql://localhost:3306/hotel-management?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3366/hotel-management?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -25,6 +23,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2000MB
+      max-request-size: 2000MB
 
 jwt:
   secret: 2cd3cdac25884e6837a7e06ed4eeae679201b200872a4175117d204568871394
