@@ -4,6 +4,7 @@ import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.models.Room;
+import group.assignment.booking_hotel_backend.dto.BookingHotelOwnerDto;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,9 +36,9 @@ public interface BookingService {
     AdminRevenueResponse getRevenueAndBookingDetails(LocalDateTime startDate, LocalDateTime endDate);
     List<Booking> findAllBookingsByHotelOwner(Integer userId);
     boolean hasBookingsForRoom(Integer roomId);
-    List<BookingResponseDto> getAllBookingsByHotelId(
+    List<BookingHotelOwnerDto> getAllBookingsByHotelId(
             Integer hotelId, Integer offset, Integer limit, String order, String query);
     
-    List<BookingResponseDto> getAllBookingsByHotelIdAndStatus(
+    List<BookingHotelOwnerDto> getAllBookingsByHotelIdAndStatus(
             Integer hotelId, Integer offset, Integer limit, String order, String query, BookingStatus status);
 }

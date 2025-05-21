@@ -205,20 +205,18 @@ public class HotelOwnerController {
      * @return List of bookings
      */
     @GetMapping("/bookings/{hotelId}")
-    public ResponseEntity<List<BookingResponseDto>> getAllBookings(
+    public ResponseEntity<List<BookingHotelOwnerDto>> getAllBookings(
             @PathVariable Integer hotelId,
             @RequestParam(defaultValue = "0") Integer offset,
             @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(defaultValue = "") String query,
-            @RequestParam(required = false) String status) { // Thêm tham số status
+            @RequestParam(required = false) String status) {
         
         try {
-            List<BookingResponseDto> bookings;
+            List<BookingHotelOwnerDto> bookings;
             
-            // Nếu status được cung cấp, lọc theo status
             if (status != null && !status.isEmpty()) {
-                // Chuyển status từ string sang enum
                 BookingStatus bookingStatus = BookingStatus.valueOf(status);
                 bookings = bookingService.getAllBookingsByHotelIdAndStatus(
                     hotelId, offset, limit, order, query, bookingStatus);

@@ -8,6 +8,8 @@ import group.assignment.booking_hotel_backend.services.BookingService;
 import group.assignment.booking_hotel_backend.services.FirebaseMessagingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import group.assignment.booking_hotel_backend.dto.BookingHotelOwnerDto;
+import group.assignment.booking_hotel_backend.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -521,7 +523,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getAllBookingsByHotelId(
+    public List<BookingHotelOwnerDto> getAllBookingsByHotelId(
             Integer hotelId, Integer offset, Integer limit, String order, String query) {
         
         Hotel hotel = hotelRepository.findById(hotelId)
@@ -547,7 +549,7 @@ public class BookingServiceImpl implements BookingService {
      * Lấy tất cả booking của một khách sạn với trạng thái cụ thể
      */
     @Override
-    public List<BookingResponseDto> getAllBookingsByHotelIdAndStatus(
+    public List<BookingHotelOwnerDto> getAllBookingsByHotelIdAndStatus(
             Integer hotelId, Integer offset, Integer limit, String order, String query, BookingStatus status) {
         
        
@@ -594,43 +596,42 @@ public class BookingServiceImpl implements BookingService {
         return PageRequest.of(page, limit, sort);
     }
     
-    /**
-     * Chuyển đổi Booking entity thành BookingResponseDto
-     */
-    private BookingResponseDto convertToBookingResponseDto(Booking booking) {
-        BookingResponseDto dto = new BookingResponseDto();
+  
+    private BookingHotelOwnerDto convertToBookingResponseDto(Booking booking) {
+        BookingHotelOwnerDto dto = new BookingHotelOwnerDto();
         
-        dto.setBookingId(booking.getId());
+        dto.setBookingId(booking.getBookingId());
         dto.setCheckIn(booking.getCheckIn());
         dto.setCheckOut(booking.getCheckOut());
         dto.setPrice(booking.getPrice());
         dto.setStatus(booking.getStatus().name());
         dto.setCreatedAt(booking.getCreatedAt());
         
-
+        // User information
         if (booking.getUser() != null) {
             UserDto userDto = new UserDto();
-            userDto.setUserId(booking.getUser().getId());
+            userDto.setUserId(booking.getUser().getUserId());
             userDto.setFullName(booking.getUser().getFullName());
             userDto.setPhone(booking.getUser().getPhone());
             userDto.setEmail(booking.getUser().getEmail());
-            dto.setUser(userDto);
+            dto.setUser(userDto);  // Make sure this setter exists
         }
         
-
+        // Room name
         if (booking.getRoom() != null) {
-            dto.setRoomName(booking.getRoom().getRoomName());
+            dto.setRoomName(booking.getRoom().getRoomName());  // Make sure this setter exists
         }
         
-  
+        // Bill information
         if (booking.getBill() != null) {
-            dto.setBillId(booking.getBill().getId());
+            dto.setBillId(booking.getBill().getBillId());  // Changed from getId() to getBillId()
         }
         
-        
-        if (booking.getReviews() != null && !booking.getReviews().isEmpty()) {
-            List<Integer> reviewIds = booking.getReviews().stream()
-                    .map(Review::getId)
+        // Reviews
+        // Check if reviews are accessible through a different method
+        if (booking.getReviewList() != null && !booking.getReviewList().isEmpty()) {  // Changed from getReviews() to getReviewList()
+            List<Integer> reviewIds = booking.getReviewList().stream()
+                    .map(Review::getReviewId)  // Changed from getId() to getReviewId()
                     .collect(Collectors.toList());
             dto.setReviewIdList(reviewIds);
         } else {
