@@ -5,8 +5,11 @@ import group.assignment.booking_hotel_backend.mapper.BookingMapper;
 import group.assignment.booking_hotel_backend.models.*;
 import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.BookingService;
+import group.assignment.booking_hotel_backend.services.FirebaseMessagingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -14,14 +17,24 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
     private final BillRepository billRepository;
     private final UserRepository userRepository;
+
+    @Autowired(required = false)
+    private FirebaseMessagingService firebaseMessagingService;
 
     @Override
     public List<BookingSearchResponse> searchAvailableRooms(BookingSearchRequest request) {
@@ -124,6 +137,27 @@ public class BookingServiceImpl implements BookingService {
                         .build());
             }
         }
+
+//        Comparator<BookingSearchResponse> comparator;
+//
+//        switch (request.getSortBy()) {
+//            case "price_asc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+//                break;
+//            case "price_desc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice).reversed();
+//                break;
+//            case "rating_asc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getRating);
+//                break;
+//            case "rating_desc":
+//                comparator = Comparator.comparing(BookingSearchResponse::getRating).reversed();
+//                break;
+//            default:
+//                comparator = Comparator.comparing(BookingSearchResponse::getPrice);
+//                break;
+//        }
+
         Comparator<BookingSearchResponse> comparator;
 
         switch (request.getSortBy()) {
@@ -270,8 +304,25 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
+        BookingStatus oldStatus = booking.getStatus();
         booking.setStatus(newStatus);
         Booking updatedBooking = bookingRepository.save(booking);
+
+        // Gửi thông báo nếu trạng thái thay đổi và Firebase service có sẵn
+        if (!oldStatus.equals(newStatus) && firebaseMessagingService != null) {
+            try {
+                firebaseMessagingService.sendBookingStatusUpdateNotification(updatedBooking);
+            } catch (Exception e) {
+                // Log lỗi nhưng không throw exception để không ảnh hưởng đến luồng chính
+                log.error("Failed to send booking status notification for booking {}: {}",
+                        bookingId, e.getMessage());
+            }
+        }
+        else {
+            System.out.println("Firebase service is not available or status has not changed for booking " + bookingId);
+            log.info("Firebase service is not available or status has not changed for booking {}", bookingId);
+        }
+
         return updatedBooking;
     }
 
@@ -414,9 +465,7 @@ public class BookingServiceImpl implements BookingService {
                 bookingDetails.add(detailResponse);
                 totalRevenue += booking.getPrice();
             }
-        }
-
-        return AdminRevenueResponse.builder()
+        }        return AdminRevenueResponse.builder()
                 .bookingDetailList(bookingDetails)
                 .totalRevenue(totalRevenue)
                 .startDate(startDate)
@@ -425,8 +474,38 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<BookingStatsDto> getBookingStatsLastNDaysForHotel(int hotelId, int days) {
+        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
+        List<Object[]> results = bookingRepository.countBookingsPerDayForHotel(hotelId, startDate);
+
+        List<BookingStatsDto> dtos = results.stream()
+        .map((Object[] row) -> new BookingStatsDto(
+            ((java.sql.Date) row[0]).toLocalDate(),
+            (Long) row[1]
+        ))
+            .collect(Collectors.toList());
+
+        return dtos;
+    }
+    @Override
     public List<Booking> findAllBookingsByHotelOwner(Integer userId) {
         return bookingRepository.findAllBookingsByHotelOwner(userId);
+    }
+
+
+    @Override
+    public List<Booking> getCurrentBookingForHotel(int hotelId) {
+       return bookingRepository.findConfirmedBookingsByHotelId(hotelId);
+    }
+
+    @Override
+    public Page<Booking> getBookingsByHotelId(Integer hotelId, String query, Pageable pageable) {
+        return bookingRepository.findByHotelIdAndQuery(hotelId, "%" + query.toLowerCase() + "%", pageable);
+    }
+
+    @Override
+    public Long countBookingsByHotelId(Integer hotelId) {
+        return bookingRepository.countByHotelId(hotelId);
     }
 
 }

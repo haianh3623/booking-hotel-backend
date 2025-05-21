@@ -17,8 +17,9 @@ public class ServiceServiceImpl implements ServiceService {
     private final ServiceRepository serviceRepository;
 
     @Override
-    public void save(Service service) {
+    public Service save(Service service) {
         serviceRepository.save(service);
+        return service;
     }
 
     @Override

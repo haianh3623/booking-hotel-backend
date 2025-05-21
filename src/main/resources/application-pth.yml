@@ -33,3 +33,14 @@ spring:
 jwt:
   secret: 2cd3cdac25884e6837a7e06ed4eeae679201b200872a4175117d204568871394
   expiration: 86400000
+
+
+firebase:
+  enabled: true
+  service-account-key: firebase-service-account.json
+
+logging:
+  level:
+    com.google.firebase: DEBUG
+    com.google.api.client: DEBUG
+    org.apache.http: DEBUG

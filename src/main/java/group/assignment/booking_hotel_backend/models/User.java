@@ -1,4 +1,5 @@
 package group.assignment.booking_hotel_backend.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;

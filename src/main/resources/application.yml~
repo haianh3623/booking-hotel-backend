@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: booking-hotel-backend
+  profiles:
+<<<<<<< HEAD
+    active: "pth"
+=======
+    active: "ldha"
+>>>>>>> deadb46ad01b60c79c2b25d9876a03aa0ad7b829
+
+  security:
+    user:
+      name: user
+      password: 1234
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/hotel-management?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+jwt:
+  secret: 2cd3cdac25884e6837a7e06ed4eeae679201b200872a4175117d204568871394
+  expiration: 86400000
+
+# Firebase configuration
+firebase:
+  enabled: true
+  service-account-key: firebase-service-account.json
+
+logging:
+  level:
+    com.google.firebase: DEBUG
+    com.google.api.client: DEBUG
+    org.apache.http: DEBUG
+
