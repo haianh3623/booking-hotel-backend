@@ -7,7 +7,7 @@ import java.util.List;
 
 @org.springframework.stereotype.Service
 public interface ServiceService {
-    void save(Service service);
+    Service save(Service service);
     List<Service> findAll();
     Service findById(Integer theId);
     void deleteById(Integer theId);

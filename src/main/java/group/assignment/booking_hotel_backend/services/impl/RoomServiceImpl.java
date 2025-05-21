@@ -1,17 +1,23 @@
 package group.assignment.booking_hotel_backend.services.impl;
 
+import group.assignment.booking_hotel_backend.dto.*;
+import group.assignment.booking_hotel_backend.models.Hotel;
+import group.assignment.booking_hotel_backend.models.Room;
+import group.assignment.booking_hotel_backend.models.SearchRequest;
+import group.assignment.booking_hotel_backend.models.Service;
 import group.assignment.booking_hotel_backend.dto.RoomDto;
 import group.assignment.booking_hotel_backend.dto.RoomResponseDto;
 import group.assignment.booking_hotel_backend.dto.RoomWithRating;
 import group.assignment.booking_hotel_backend.mapper.RoomMapper;
 import group.assignment.booking_hotel_backend.models.*;
-import group.assignment.booking_hotel_backend.repository.HotelRepository;
-import group.assignment.booking_hotel_backend.repository.RoomRepository;
-import group.assignment.booking_hotel_backend.repository.ServiceRepository;
+import group.assignment.booking_hotel_backend.repository.*;
 import group.assignment.booking_hotel_backend.services.FilesStorageService;
 import group.assignment.booking_hotel_backend.services.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.util.Iterator;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +31,10 @@ public class RoomServiceImpl implements RoomService {
     private final HotelRepository hotelRepository;
     private final ServiceRepository serviceRepository;
     private final FilesStorageService filesStorageService;
+    private final ReviewServiceImpl reviewService;
+    private final AddressRepository addressRepository;
+    private final RoomImageRepository roomImageRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public Room save(RoomDto roomDto) {
@@ -114,6 +124,138 @@ public class RoomServiceImpl implements RoomService {
         return roomRepository.findAll();
     }
 
+    @Override
+    public Page<Room> findByHotelId(Integer hotelId, String query, Pageable pageable) {
+        return roomRepository.findByHotelIdAndQuery(hotelId, query.toLowerCase(), pageable);
+    }
+
+    @Override
+    public Long countRoomsByHotelId(Integer hotelId) {
+        return roomRepository.countByHotelId(hotelId);
+    }
+
+    @Override
+    public List<Room> findByHotelId(Integer hotelId) {
+        return List.of();
+    }
+
+    @Override
+    public List<RoomSearchListDto> findRoomByKeyword(String keyword, Pageable pageable) {
+        List<RoomSearchListDto> list = roomRepository.searchRoomListByKeyword(keyword);
+        for(RoomSearchListDto room : list) {
+            Double rating = 0.0;
+            Integer reviewCount = 0;
+            List<ReviewDto> reviews = reviewService.findByRoomId(room.getRoomId());
+            for(ReviewDto review : reviews) {
+                rating += review.getRating();
+                reviewCount++;
+            }
+            if (reviewCount > 0) {
+                rating /= reviewCount;
+            }
+            room.setRating(rating);
+            room.setReviewCount(reviewCount);
+            room.setAddress(addressRepository.findAddressByHotelName(room.getHotelName()).getFirst().toString());
+        }
+
+
+        return list;
+    }
+
+    @Override
+    public List<RoomSearchListDto> findRoomBySearchRequest(SearchRequest searchRequest, Pageable pageable) {
+        List<RoomSearchListDto> list;
+        if (!searchRequest.getKeyword().isEmpty()){
+            list = findRoomByKeyword(searchRequest.getKeyword(), pageable);
+        } else list = roomRepository.findAllRoomList();
+
+        Iterator<RoomSearchListDto> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            RoomSearchListDto room = iterator.next();
+            String hotelName = room.getHotelName();
+
+            if (searchRequest.getCity() != null && !searchRequest.getCity().isEmpty() && searchRequest.getCity().compareTo("Tất cả") != 0) {
+                List<String> cities = hotelRepository.findCityByHotelName(hotelName);
+                if (!cities.contains(searchRequest.getCity())) {
+                    System.out.println(!cities.contains(searchRequest.getCity()));
+                    iterator.remove();
+                    continue;
+                }
+            }
+
+            if (searchRequest.getDistrict() != null && !searchRequest.getDistrict().isEmpty() && searchRequest.getDistrict().compareTo("Tất cả") != 0) {
+                List<String> districts = hotelRepository.findDistrictByHotelName(hotelName);
+                if (!districts.contains(searchRequest.getDistrict())) {
+                    iterator.remove();
+                    continue;
+                }
+            }
+
+            if (searchRequest.getNumOfAdult() != null && searchRequest.getNumOfAdult() > 0) {
+                if (room.getStandardOccupancy() < searchRequest.getNumOfAdult()) {
+                    iterator.remove();
+                    continue;
+                }
+            }
+
+            if (searchRequest.getNumOfChild() != null && searchRequest.getNumOfChild() > 0) {
+                if (room.getNumChildrenFree() < searchRequest.getNumOfChild()) {
+                    iterator.remove();
+                    continue;
+                }
+            }
+
+            if (searchRequest.getNumOfBed() != null && searchRequest.getNumOfBed() > 0) {
+                if (room.getBedNumber() < searchRequest.getNumOfBed()) {
+                    iterator.remove();
+                }
+            }
+
+            room.setAddress(addressRepository.findAddressByHotelName(hotelName).toString());
+        }
+
+
+
+        return list;
+    }
+
+    @Override
+    public RoomDetailsDto getRoomDetails(Integer roomId) {
+        RoomDetailsDto roomDetails = new RoomDetailsDto();
+        Room room = roomRepository.findById(roomId).get();
+        if(room != null){
+            roomDetails.setRoomId(room.getRoomId());
+            roomDetails.setRoomName(room.getRoomName());
+            roomDetails.setArea(room.getArea());
+            roomDetails.setComboPrice2h(room.getComboPrice2h());
+            roomDetails.setPricePerNight(room.getPricePerNight());
+            roomDetails.setExtraHourPrice(room.getExtraHourPrice());
+            roomDetails.setStandardOccupancy(room.getStandardOccupancy());
+            roomDetails.setMaxOccupancy(room.getMaxOccupancy());
+            roomDetails.setNumChildrenFree(room.getNumChildrenFree());
+            roomDetails.setBedNumber(room.getBedNumber());
+            roomDetails.setExtraAdult(room.getExtraAdult());
+            roomDetails.setDescription(room.getDescription());
+
+            roomDetails.setRoomImgs(roomImageRepository.findByRoomRoomId(roomId).stream().map(
+                    roomImage -> roomImage.getUrl()
+            ).toList(
+            ));
+
+            roomDetails.setHotelName(hotelRepository.findHotelNameByRoomId(roomId));
+
+            roomDetails.setAddress(addressRepository.findAddressByHotelName(roomDetails.getHotelName()).toString());
+
+            List<Service> services = serviceRepository.findServicesByRoomId(roomId);
+            roomDetails.setServices(services.stream().map(Service::getServiceName).toList());
+
+            List<ReviewCardDto> reviews = reviewRepository.findReviewsCardByRoomId(roomId);
+            roomDetails.setReviews(reviews);
+
+        }
+
+        return roomDetails;
+    }
     @Override
     public List<RoomResponseDto> getTopRatedRooms(int limit) {
         List<Room> allRooms = roomRepository.findAll();

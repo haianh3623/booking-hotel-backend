@@ -32,4 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-*.java~
+src/main/resources/firebase-service-account.json

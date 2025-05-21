@@ -108,4 +108,41 @@ public class RoomMapper {
         }
         return roomDto;
     }
+
+    public static RoomResponseHotelOwnerDto mapToRoomResponseHotelOwnerDto(Room room, RoomResponseHotelOwnerDto roomResponseHotelOwnerDto) {
+        roomResponseHotelOwnerDto.setRoomId(room.getRoomId());
+        roomResponseHotelOwnerDto.setRoomName(room.getRoomName());
+        roomResponseHotelOwnerDto.setArea(room.getArea());
+        roomResponseHotelOwnerDto.setComboPrice2h(room.getComboPrice2h());
+        roomResponseHotelOwnerDto.setPricePerNight(room.getPricePerNight());
+        roomResponseHotelOwnerDto.setExtraHourPrice(room.getExtraHourPrice());
+        roomResponseHotelOwnerDto.setStandardOccupancy(room.getStandardOccupancy());
+        roomResponseHotelOwnerDto.setMaxOccupancy(room.getMaxOccupancy());
+        roomResponseHotelOwnerDto.setNumChildrenFree(room.getNumChildrenFree());
+        roomResponseHotelOwnerDto.setRoomImg(room.getRoomImg());
+        roomResponseHotelOwnerDto.setBedNumber(room.getBedNumber());
+        roomResponseHotelOwnerDto.setExtraAdult(room.getExtraAdult());
+        roomResponseHotelOwnerDto.setDescription(room.getDescription());
+        roomResponseHotelOwnerDto.setHotelDto(HotelMapper.mapToHotelDto(room.getHotel(), new HotelDto()));
+        if (room.getServiceList() != null) {
+            List<ServiceDto> serviceDtos = new ArrayList<>();
+            for (Service service : room.getServiceList()){
+                ServiceDto serviceDto = ServiceMapper.mapToServiceDto(service, new ServiceDto());
+                serviceDtos.add(serviceDto);
+            }
+            roomResponseHotelOwnerDto.setServiceDtoList(serviceDtos);
+        }
+
+        List<RoomImageDto> imageUrls = new ArrayList<>();
+        if (room.getRoomImageList() != null) {
+            List<RoomImage> roomImageList = room.getRoomImageList();
+            for (RoomImage roomImage : roomImageList) {
+                RoomImageDto roomImageDto = RoomImageMapper.mapToRoomImageDto(roomImage, new RoomImageDto());
+                imageUrls.add(roomImageDto);
+            }
+            roomResponseHotelOwnerDto.setRoomImageUrls(imageUrls);
+        }
+        return roomResponseHotelOwnerDto;
+
+    }
 }
