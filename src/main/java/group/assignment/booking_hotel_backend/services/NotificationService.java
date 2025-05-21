@@ -7,5 +7,8 @@ import java.util.List;
 
 public interface NotificationService {
     void handleBookingEvent(Booking booking, String eventType);
+
+    void deleteNotificationsByBookingId(Integer bookingId);
+
     List<NotificationDto> getUserNotifications(Integer userId);
 }

@@ -35,7 +35,11 @@ public class NotificationServiceImpl implements NotificationService {
     private void createBookingSuccessNotification(Booking booking) {
         Notification notification = Notification.builder()
                 .user(booking.getUser())
-                .content("Đặt phòng thành công: " + booking.getRoom().getRoomName())
+                .booking(booking)
+                .content(String.format("Quý khách đã đặt phòng thành công tại %s từ %s đến %s.",
+                        booking.getRoom().getRoomName(),
+                        formatDateTime(booking.getCheckIn()),
+                        formatDateTime(booking.getCheckOut())))
                 .notificationTime(LocalDateTime.now()) // Thông báo ngay lập tức
                 .build();
         notificationRepository.save(notification);
@@ -46,9 +50,11 @@ public class NotificationServiceImpl implements NotificationService {
         LocalDateTime checkInTime = booking.getCheckIn();
         Notification checkInNotification = Notification.builder()
                 .user(booking.getUser())
-                .content(String.format("Nhắc nhở: Phòng %s sẽ check-in vào %s",
-                        booking.getRoom().getRoomName(),
-                        formatDateTime(checkInTime)))
+                .booking(booking)
+                .content(String.format("Xin chào %s, quý khách có lịch check-in vào lúc %s tại phòng %s, vui lòng mang theo giấy tờ tùy thân.",
+                        booking.getUser().getFullName(),
+                        formatDateTime(checkInTime),
+                        booking.getRoom().getRoomName()))
                 .notificationTime(checkInTime.minusHours(24))
                 .build();
         checkInNotification.setCreatedAt(checkInTime.minusHours(24));
@@ -58,9 +64,11 @@ public class NotificationServiceImpl implements NotificationService {
         LocalDateTime checkOutTime = booking.getCheckOut();
         Notification checkOutNotification = Notification.builder()
                 .user(booking.getUser())
-                .content(String.format("Nhắc nhở: Phòng %s sẽ check-out vào %s",
-                        booking.getRoom().getRoomName(),
-                        formatDateTime(checkOutTime)))
+                .booking(booking)
+                .content(String.format("Xin chào %s, quý khách có lịch check-out vào lúc %s tại phòng %s, vui lòng kiểm tra lại phòng trước khi rời đi.",
+                        booking.getUser().getFullName(),
+                        formatDateTime(checkOutTime),
+                        booking.getRoom().getRoomName()))
                 .notificationTime(checkOutTime.minusMinutes(30))
                 .build();
         checkOutNotification.setCreatedAt(checkOutTime.minusMinutes(30));
@@ -70,10 +78,19 @@ public class NotificationServiceImpl implements NotificationService {
     private void createBookingCancelNotification(Booking booking) {
         Notification notification = Notification.builder()
                 .user(booking.getUser())
-                .content("Đã hủy đặt phòng: " + booking.getRoom().getRoomName())
+                .booking(booking)
+                .content(String.format("Quý khách đã hủy đặt phòng tại %s từ %s đến %s.",
+                        booking.getRoom().getRoomName(),
+                        formatDateTime(booking.getCheckIn()),
+                        formatDateTime(booking.getCheckOut())))
                 .notificationTime(LocalDateTime.now()) // Thông báo ngay lập tức
                 .build();
         notificationRepository.save(notification);
+    }
+
+    @Override
+    public void deleteNotificationsByBookingId(Integer bookingId) {
+        notificationRepository.deleteByBooking_BookingId(bookingId);
     }
 
     private String formatDateTime(LocalDateTime dateTime) {

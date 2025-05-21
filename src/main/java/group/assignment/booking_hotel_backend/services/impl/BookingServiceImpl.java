@@ -191,7 +191,6 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         Booking saved = bookingRepository.save(booking);
-        notificationService.handleBookingEvent(saved, "BOOKING_SUCCESS");
         return BookingMapper.mapToBookingResponseDto(saved, new BookingResponseDto());
     }
 
@@ -265,6 +264,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void deleteById(Integer id) {
+        notificationService.deleteNotificationsByBookingId(id);
         bookingRepository.deleteById(id);
     }
 
@@ -277,6 +277,9 @@ public class BookingServiceImpl implements BookingService {
         Booking updatedBooking = bookingRepository.save(booking);
         if (newStatus == BookingStatus.CANCELLED) {
             notificationService.handleBookingEvent(updatedBooking, "BOOKING_CANCEL");
+        }
+        if (newStatus == BookingStatus.CONFIRMED) {
+            notificationService.handleBookingEvent(updatedBooking, "BOOKING_SUCCESS");
         }
         return updatedBooking;
     }

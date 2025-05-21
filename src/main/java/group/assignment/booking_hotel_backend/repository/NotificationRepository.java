@@ -12,8 +12,6 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
-//    @Query("SELECT n FROM Notification n WHERE n.user.userId = :userId AND (n.notificationTime <= CURRENT_TIMESTAMP OR n.notificationTime IS NULL)")
-//    List<Notification> findByUserIdAndNotificationTimeBeforeOrNull(@Param("userId") Integer userId);
-//    List<Notification> findByUser_UserId(Integer userId);
     List<Notification> findByUser_UserIdAndNotificationTimeLessThanEqualOrNotificationTimeIsNull(Integer userId, LocalDateTime notificationTime);
+    void deleteByBooking_BookingId(Integer bookingId);
 }
