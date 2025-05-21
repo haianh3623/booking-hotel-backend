@@ -8,7 +8,6 @@ import group.assignment.booking_hotel_backend.services.BookingService;
 import group.assignment.booking_hotel_backend.services.FirebaseMessagingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import group.assignment.booking_hotel_backend.dto.BookingHotelOwnerDto;
 import group.assignment.booking_hotel_backend.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
@@ -477,18 +476,30 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingStatsDto> getBookingStatsLastNDaysForHotel(int hotelId, int days) {
-        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusDays(days);
+ 
         List<Object[]> results = bookingRepository.countBookingsPerDayForHotel(hotelId, startDate);
+    
+        Map<LocalDate, Long> bookingCountMap = results.stream()
+            .collect(Collectors.toMap(
+                row -> ((java.sql.Date) row[0]).toLocalDate(),
+                row -> (Long) row[1]
+            ));
 
-        List<BookingStatsDto> dtos = results.stream()
-        .map((Object[] row) -> new BookingStatsDto(
-            ((java.sql.Date) row[0]).toLocalDate(),
-            (Long) row[1]
-        ))
-            .collect(Collectors.toList());
-
-        return dtos;
+        List<BookingStatsDto> statsForAllDays = new ArrayList<>();
+        LocalDate date = startDate.toLocalDate();
+        LocalDate endDateDay = endDate.toLocalDate();
+        
+        while (!date.isAfter(endDateDay)) {
+            Long count = bookingCountMap.getOrDefault(date, 0L);
+            statsForAllDays.add(new BookingStatsDto(date, count));
+            date = date.plusDays(1);
+        }
+        
+        return statsForAllDays;
     }
+
     @Override
     public List<Booking> findAllBookingsByHotelOwner(Integer userId) {
         return bookingRepository.findAllBookingsByHotelOwner(userId);
