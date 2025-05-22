@@ -38,6 +38,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto registerUser(RegistrationRequest request) {
+        // Check if empty
+        if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
+            throw new UserRegistrationException("Tên tài khoản không được để trống", "username");
+        }
+
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new UserRegistrationException("Email không được để trống", "email");
+        }
+
+        if (request.getPhone() == null || request.getPhone().trim().isEmpty()) {
+            throw new UserRegistrationException("Số điện thoại không được để trống", "phone");
+        }
+
+        if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
+            throw new UserRegistrationException("Họ tên không được để trống", "fullName");
+        }
+
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            throw new UserRegistrationException("Mật khẩu không được để trống", "password");
+        }
         // Check if username exists
         if (userRepository.findByUsername(request.getUsername()) != null) {
             throw new UserRegistrationException("Tên tài khoản đã tồn tại", "username");
@@ -68,7 +88,7 @@ public class UserServiceImpl implements UserService {
             throw new UserRegistrationException("Không đúng định dạng email", "email");
         }
 
-        if (request.getPassword() == null || request.getPassword().length() < 6) {
+        if (request.getPassword().length() < 6) {
             throw new UserRegistrationException("Mật khẩu phải có ít nhất 6 ký tự", "password");
         }
 
