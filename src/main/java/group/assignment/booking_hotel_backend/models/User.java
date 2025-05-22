@@ -15,8 +15,10 @@ public class User extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
-    @Column(name = "avatar_url")
     private String fullName;
+    @Lob
+    @Column(name = "avatar_url", columnDefinition = "LONGTEXT")
+    private String avatarUrl;
     private String phone;
     private String email;
     @Column(unique = true)

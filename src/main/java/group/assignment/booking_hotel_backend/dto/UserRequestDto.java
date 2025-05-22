@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 public class UserRequestDto {
     private String fullName;
+    private String avatarUrl;
     private String phone;
     private String email;
     private String username;

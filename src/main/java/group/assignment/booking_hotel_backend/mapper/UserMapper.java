@@ -12,6 +12,7 @@ public class UserMapper {
     public static UserDto mapToUserDto(User user, UserDto userDto) {
         userDto.setUserId(user.getUserId());
         userDto.setUsername(user.getUsername());
+        userDto.setAvatarUrl(user.getAvatarUrl());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
         userDto.setPhone(user.getPhone());
@@ -23,6 +24,7 @@ public class UserMapper {
     public static UserResponseDto mapToUserDto(User user, UserResponseDto dto) {
         dto.setUserId(user.getUserId());
         dto.setFullName(user.getFullName());
+        dto.setAvatarUrl(user.getAvatarUrl());
         dto.setPhone(user.getPhone());
         dto.setEmail(user.getEmail());
         dto.setUsername(user.getUsername());
@@ -42,6 +44,7 @@ public class UserMapper {
     public static User mapToUser(UserDto userDto, User user) {
         user.setUsername(userDto.getUsername());
         user.setFullName(userDto.getFullName());
+        user.setAvatarUrl(userDto.getAvatarUrl());
         user.setEmail(userDto.getEmail());
         user.setPhone(userDto.getPhone());
         user.setPassword(userDto.getPassword());
@@ -52,6 +55,7 @@ public class UserMapper {
     public static User mapToUser(RegistrationRequest request, User user, PasswordEncoder passwordEncoder) {
         user.setUsername(request.getUsername());
         user.setFullName(request.getFullName());
+        user.setAvatarUrl(request.getAvatarUrl());
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -61,6 +65,7 @@ public class UserMapper {
 
     public static User mapToUser(UserRequestDto dto, User user, List<Role> roles) {
         user.setFullName(dto.getFullName());
+        user.setAvatarUrl(dto.getAvatarUrl());
         user.setPhone(dto.getPhone());
         user.setEmail(dto.getEmail());
         user.setUsername(dto.getUsername());
