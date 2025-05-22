@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Iterator;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
@@ -212,11 +209,58 @@ public class RoomServiceImpl implements RoomService {
             }
 
             room.setAddress(addressRepository.findAddressByHotelName(hotelName).toString());
+
+            List<ReviewDto> reviews = reviewRepository.findReviewsByRoomId(room.getRoomId());
+            room.setReviewCount(reviews.size());
+            room.setRating(calculateAverageRating(reviews));
         }
 
+        boolean isHotelName = false;
+        List<String> hotelNames = hotelRepository.getAllHotelNames();
+        for (String hotelName : hotelNames) {
+            if (searchRequest.getKeyword().equals(hotelName)) {
+                isHotelName = true;
+                break;
+            }
+        }
 
+        List<RoomSearchListDto> roomList;
 
-        return list;
+        if (!isHotelName) {
+            Map<String, RoomSearchListDto> bestRoomByHotel = new HashMap<>();
+
+            for (RoomSearchListDto room : list) {
+                String hotelName = room.getHotelName();
+
+                if (!bestRoomByHotel.containsKey(hotelName)) {
+                    bestRoomByHotel.put(hotelName, room);
+                } else {
+                    RoomSearchListDto existing = bestRoomByHotel.get(hotelName);
+                    if (room.getRating() > existing.getRating()) {
+                        bestRoomByHotel.put(hotelName, room);
+                    }
+                }
+            }
+
+            roomList = new ArrayList<>(bestRoomByHotel.values());
+        } else {
+            roomList = list; // hoặc giữ nguyên danh sách nếu đúng là tìm theo tên khách sạn
+        }
+
+        roomList.sort(Comparator.comparing(RoomSearchListDto::getRoomId));
+
+        return roomList;
+    }
+
+    public double calculateAverageRating(List<ReviewDto> reviews) {
+        if (reviews.isEmpty()) {
+            return 0.0;
+        }
+        double totalRating = 0.0;
+        for (ReviewDto review : reviews) {
+            totalRating += review.getRating();
+        }
+        return totalRating / reviews.size();
     }
 
     @Override

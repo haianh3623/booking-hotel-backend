@@ -15,6 +15,8 @@ public interface AddressRepository extends JpaRepository<Address, Integer> {
     List<String> findDistrictByCity(@Param("city") String city);
     @Query("SELECT DISTINCT a.city FROM Address a")
     List<String> findAllCity();
+    @Query("SELECT DISTINCT a.district FROM Address a")
+    List<String> findAllDistrict();
     @Query("SELECT NEW group.assignment.booking_hotel_backend.dto.AddressDto(a.city, a.district, a.ward, a.specificAddress) " +
             "FROM Hotel h JOIN h.address a WHERE h.hotelName = :hotelName")
     List<AddressDto> findAddressByHotelName(@Param("hotelName") String hotelName);

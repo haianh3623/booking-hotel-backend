@@ -32,4 +32,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
     @Query("SELECT h.hotelName FROM Hotel h WHERE LOWER(h.hotelName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<String> findHotelNamesByKeyword(@Param("keyword") String keyword);
     List<Hotel> findByUserIn(List<User> users);
+
+    @Query("SELECT DISTINCT h.hotelName FROM Hotel h")
+    List<String> getAllHotelNames();
 }

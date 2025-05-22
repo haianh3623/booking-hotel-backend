@@ -12,5 +12,6 @@ public class ReviewCardDto {
     public String content;
     public Integer rating;
     public String userName;
+    public String ownerReply;
 
 }

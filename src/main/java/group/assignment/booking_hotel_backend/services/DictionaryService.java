@@ -3,7 +3,11 @@ package group.assignment.booking_hotel_backend.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group.assignment.booking_hotel_backend.models.SearchEntry;
+import group.assignment.booking_hotel_backend.repository.AddressRepository;
+import group.assignment.booking_hotel_backend.repository.HotelRepository;
+import group.assignment.booking_hotel_backend.repository.RoomRepository;
 import group.assignment.booking_hotel_backend.utils.TextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -17,50 +21,53 @@ import java.util.stream.Collectors;
 @Service
 public class DictionaryService {
 
-    private List<SearchEntry> dictionary = new ArrayList<>();
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private HotelRepository hotelRepository;
+    @Autowired
+    private RoomRepository roomRepository;
 
-    // Đường dẫn tạm để lưu lại file nếu cần ghi
-    private File dictionaryFile;
+    private final List<SearchEntry> dictionary = new ArrayList<>();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @PostConstruct
     public void init() {
         try {
-            // Load file từ resources (classpath)
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("dictionary.json");
-            if (inputStream == null) {
-                throw new RuntimeException("Không tìm thấy dictionary.json trong resources.");
+            List<String> newValues = new ArrayList<>();
+            newValues.addAll(fetchCityNames());
+            newValues.addAll(fetchDistrictNames());
+            newValues.addAll(fetchHotelNames());
+            newValues.addAll(fetchRoomNames());
+
+            for (String value : newValues) {
+                boolean exists = dictionary.stream()
+                        .anyMatch(entry -> entry.getValue().equalsIgnoreCase(value));
+                if (!exists) {
+                    dictionary.add(new SearchEntry("none", value));
+                }
             }
 
-            // Đọc nội dung file
-            dictionary = mapper.readValue(inputStream, new TypeReference<>() {});
-
-            // Ghi file ra temp để có thể cập nhật lại
-            Path tempFile = Files.createTempFile("dictionary", ".json");
-            dictionaryFile = tempFile.toFile();
-            mapper.writerWithDefaultPrettyPrinter().writeValue(dictionaryFile, dictionary);
+            System.out.println("Dictionary initialized with " + dictionary.size() + " entries.");
 
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi load dictionary.json", e);
+            throw new RuntimeException("Lỗi khi khởi tạo dictionary", e);
         }
     }
-
-    public List<SearchEntry> getAll() {
-        return dictionary;
+    private List<String> fetchCityNames() {
+        return addressRepository.findAllCity();
     }
 
-    public void addEntry(SearchEntry newEntry) {
-        try {
-            dictionary.add(newEntry);
+    private List<String> fetchDistrictNames() {
+        return addressRepository.findAllDistrict();
+    }
 
-            // Ghi lại vào file tạm đã lưu
-            if (dictionaryFile != null) {
-                mapper.writerWithDefaultPrettyPrinter().writeValue(dictionaryFile, dictionary);
-            }
+    private List<String> fetchHotelNames() {
+        return hotelRepository.getAllHotelNames();
+    }
 
-        } catch (Exception e) {
-            throw new RuntimeException("Không thể ghi vào dictionary.json", e);
-        }
+    private List<String> fetchRoomNames() {
+        return roomRepository.findDistinctRoomNames();
     }
 
     public List<SearchEntry> search(String query) {
