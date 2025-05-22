@@ -62,4 +62,39 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     @Query("SELECT b FROM Booking b WHERE b.room.hotel.user.userId = :userId")
     List<Booking> findAllBookingsByHotelOwner(@Param("userId") Integer userId);
+
+
+    @Query("SELECT b FROM Booking b WHERE b.room.roomId = :roomId AND b.status IN :statuses")
+    List<Booking> findByRoomIdAndStatusIn(
+            @Param("roomId") Integer roomId, 
+            @Param("statuses") List<BookingStatus> statuses);
+
+        @Query("SELECT b FROM Booking b JOIN b.room r JOIN b.user u " +
+                "WHERE r.hotel.hotelId = :hotelId AND b.status = :status " +
+                "AND (LOWER(r.roomName) LIKE LOWER(CONCAT('%', :query, '%')) " +
+                "OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :query, '%')))")
+    Page<Booking> findByHotelIdAndStatusAndRoomNameContainingOrUserFullNameContaining(
+            @Param("hotelId") Integer hotelId,
+            @Param("status") BookingStatus status,
+            @Param("query") String query,
+            Pageable pageable);
+
+        @Query("SELECT b FROM Booking b JOIN b.room r WHERE r.hotel.hotelId = :hotelId")
+    Page<Booking> findByHotelId(@Param("hotelId") Integer hotelId, Pageable pageable);
+
+    @Query("SELECT b FROM Booking b JOIN b.room r JOIN b.user u " +
+           "WHERE r.hotel.hotelId = :hotelId " +
+           "AND (LOWER(r.roomName) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :query, '%')))")
+    Page<Booking> findByHotelIdAndRoomNameContainingOrUserFullNameContaining(
+            @Param("hotelId") Integer hotelId,
+            @Param("query") String query,
+            Pageable pageable);
+
+ @Query("SELECT b FROM Booking b JOIN b.room r " +
+           "WHERE r.hotel.hotelId = :hotelId AND b.status = :status")
+    Page<Booking> findByHotelIdAndStatus(
+            @Param("hotelId") Integer hotelId,
+            @Param("status") BookingStatus status,
+            Pageable pageable);
 }

@@ -9,6 +9,7 @@ import group.assignment.booking_hotel_backend.services.NotificationService;
 import group.assignment.booking_hotel_backend.services.FirebaseMessagingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import group.assignment.booking_hotel_backend.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -290,6 +291,9 @@ public class BookingServiceImpl implements BookingService {
         if (newStatus == BookingStatus.CANCELLED) {
             notificationService.handleBookingEvent(updatedBooking, "BOOKING_CANCEL");
         }
+        if (newStatus == BookingStatus.CONFIRMED) {
+            notificationService.handleBookingEvent(updatedBooking, "BOOKING_CONFIRM");
+        }
         if (!oldStatus.equals(newStatus) && firebaseMessagingService != null) {
             try {
                 firebaseMessagingService.sendBookingStatusUpdateNotification(updatedBooking);
@@ -455,18 +459,30 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingStatsDto> getBookingStatsLastNDaysForHotel(int hotelId, int days) {
-        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusDays(days);
+ 
         List<Object[]> results = bookingRepository.countBookingsPerDayForHotel(hotelId, startDate);
+    
+        Map<LocalDate, Long> bookingCountMap = results.stream()
+            .collect(Collectors.toMap(
+                row -> ((java.sql.Date) row[0]).toLocalDate(),
+                row -> (Long) row[1]
+            ));
 
-        List<BookingStatsDto> dtos = results.stream()
-        .map((Object[] row) -> new BookingStatsDto(
-            ((java.sql.Date) row[0]).toLocalDate(),
-            (Long) row[1]
-        ))
-            .collect(Collectors.toList());
-
-        return dtos;
+        List<BookingStatsDto> statsForAllDays = new ArrayList<>();
+        LocalDate date = startDate.toLocalDate();
+        LocalDate endDateDay = endDate.toLocalDate();
+        
+        while (!date.isAfter(endDateDay)) {
+            Long count = bookingCountMap.getOrDefault(date, 0L);
+            statsForAllDays.add(new BookingStatsDto(date, count));
+            date = date.plusDays(1);
+        }
+        
+        return statsForAllDays;
     }
+
     @Override
     public List<Booking> findAllBookingsByHotelOwner(Integer userId) {
         return bookingRepository.findAllBookingsByHotelOwner(userId);
@@ -486,6 +502,137 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Long countBookingsByHotelId(Integer hotelId) {
         return bookingRepository.countByHotelId(hotelId);
+    }
+
+    @Override
+    public boolean hasBookingsForRoom(Integer roomId) {
+        // Kiểm tra booking với status là PENDING hoặc CONFIRMED
+        List<BookingStatus> activeStatuses = Arrays.asList(
+            BookingStatus.PENDING, 
+            BookingStatus.CONFIRMED
+        );
+        
+        List<Booking> bookings = bookingRepository.findByRoomIdAndStatusIn(roomId, activeStatuses);
+        return !bookings.isEmpty();
+    }
+
+    @Override
+    public List<BookingHotelOwnerDto> getAllBookingsByHotelId(
+            Integer hotelId, Integer offset, Integer limit, String order, String query) {
+        
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách sạn"));
+        
+        Pageable pageable = createPageable(offset, limit, order);
+        
+        Page<Booking> bookings;
+        
+        if (query != null && !query.isEmpty()) {
+            bookings = bookingRepository.findByHotelIdAndRoomNameContainingOrUserFullNameContaining(
+                hotelId, query, pageable);
+        } else {
+            bookings = bookingRepository.findByHotelId(hotelId, pageable);
+        }
+        
+        return bookings.stream()
+                .map(this::convertToBookingResponseDto)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Lấy tất cả booking của một khách sạn với trạng thái cụ thể
+     */
+    @Override
+    public List<BookingHotelOwnerDto> getAllBookingsByHotelIdAndStatus(
+            Integer hotelId, Integer offset, Integer limit, String order, String query, BookingStatus status) {
+        
+       
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách sạn"));
+        
+
+        Pageable pageable = createPageable(offset, limit, order);
+        
+  
+        Page<Booking> bookings;
+        
+        if (query != null && !query.isEmpty()) {
+
+            bookings = bookingRepository.findByHotelIdAndStatusAndRoomNameContainingOrUserFullNameContaining(
+                hotelId, status, query, pageable);
+        } else {
+
+            bookings = bookingRepository.findByHotelIdAndStatus(hotelId, status, pageable);
+        }
+        
+
+        return bookings.stream()
+                .map(this::convertToBookingResponseDto)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Hỗ trợ phương thức tạo Pageable từ offset, limit và order
+     */
+    private Pageable createPageable(Integer offset, Integer limit, String order) {
+        Sort sort;
+        
+
+        if ("asc".equalsIgnoreCase(order)) {
+            sort = Sort.by(Sort.Direction.ASC, "createdAt");
+        } else {
+            sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+        
+  
+        int page = offset / limit;
+        
+        return PageRequest.of(page, limit, sort);
+    }
+    
+  
+    private BookingHotelOwnerDto convertToBookingResponseDto(Booking booking) {
+        BookingHotelOwnerDto dto = new BookingHotelOwnerDto();
+        
+        dto.setBookingId(booking.getBookingId());
+        dto.setCheckIn(booking.getCheckIn());
+        dto.setCheckOut(booking.getCheckOut());
+        dto.setPrice(booking.getPrice());
+        dto.setStatus(booking.getStatus().name());
+        dto.setCreatedAt(booking.getCreatedAt());
+        
+        // User information
+        if (booking.getUser() != null) {
+            UserDto userDto = new UserDto();
+            userDto.setUserId(booking.getUser().getUserId());
+            userDto.setFullName(booking.getUser().getFullName());
+            userDto.setPhone(booking.getUser().getPhone());
+            userDto.setEmail(booking.getUser().getEmail());
+            dto.setUser(userDto);  // Make sure this setter exists
+        }
+        
+        // Room name
+        if (booking.getRoom() != null) {
+            dto.setRoomName(booking.getRoom().getRoomName());  // Make sure this setter exists
+        }
+        
+        // Bill information
+        if (booking.getBill() != null) {
+            dto.setBillId(booking.getBill().getBillId());  // Changed from getId() to getBillId()
+        }
+        
+        // Reviews
+        // Check if reviews are accessible through a different method
+        if (booking.getReviewList() != null && !booking.getReviewList().isEmpty()) {  // Changed from getReviews() to getReviewList()
+            List<Integer> reviewIds = booking.getReviewList().stream()
+                    .map(Review::getReviewId)  // Changed from getId() to getReviewId()
+                    .collect(Collectors.toList());
+            dto.setReviewIdList(reviewIds);
+        } else {
+            dto.setReviewIdList(new ArrayList<>());
+        }
+        
+        return dto;
     }
 
 }

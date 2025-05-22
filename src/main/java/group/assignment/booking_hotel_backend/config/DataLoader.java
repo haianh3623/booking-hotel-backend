@@ -38,7 +38,7 @@ public class DataLoader implements CommandLineRunner {
             customer.setFullName("User");
             customer.setPhone("0123456789");
             customer.setEmail("user@example.com");
-                customer.setPassword(passwordEncoder.encode("user"));
+            customer.setPassword(passwordEncoder.encode("user"));
             customer.addRole(customerRole);
             userRepository.save(customer);
         }

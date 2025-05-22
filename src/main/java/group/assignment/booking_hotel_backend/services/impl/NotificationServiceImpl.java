@@ -20,7 +20,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void handleBookingEvent(Booking booking, String eventType) {
         switch (eventType) {
-            case "BOOKING_SUCCESS":
+            case "BOOKING_CONFIRM":
                 createBookingSuccessNotification(booking);
                 createCheckInOutNotifications(booking);
                 break;

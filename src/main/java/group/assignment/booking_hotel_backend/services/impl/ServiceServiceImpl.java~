@@ -1,0 +1,18 @@
+package group.assignment.booking_hotel_backend.services.impl;
+
+import group.assignment.booking_hotel_backend.repository.ServiceRepository;
+import group.assignment.booking_hotel_backend.services.ServiceService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@org.springframework.stereotype.Service
+@RequiredArgsConstructor
+public class ServiceServiceImpl implements ServiceService {
+
+    private final ServiceRepository serviceRepository;
+
+}

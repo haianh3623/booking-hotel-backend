@@ -8,6 +8,7 @@ import group.assignment.booking_hotel_backend.services.UserService;
 import group.assignment.booking_hotel_backend.models.User;
 import group.assignment.booking_hotel_backend.models.Role;
 import group.assignment.booking_hotel_backend.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -28,18 +30,6 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final UserRepository userRepository;
-
-    public AuthController(AuthenticationManager authenticationManager,
-                          group.assignment.booking_hotel_backend.security.CustomUserDetailsService userDetailsService,
-                          JwtUtil jwtUtil,
-                          UserService userService,
-                          UserRepository userRepository) {
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.jwtUtil = jwtUtil;
-        this.userService = userService;
-        this.userRepository = userRepository;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {

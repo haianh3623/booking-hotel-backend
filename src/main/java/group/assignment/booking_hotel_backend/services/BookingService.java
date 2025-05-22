@@ -1,15 +1,10 @@
 package group.assignment.booking_hotel_backend.services;
 
-import group.assignment.booking_hotel_backend.dto.BookingRequestDto;
-import group.assignment.booking_hotel_backend.dto.BookingResponseDto;
-import group.assignment.booking_hotel_backend.dto.BookingSearchRequest;
-import group.assignment.booking_hotel_backend.dto.BookingSearchResponse;
-import group.assignment.booking_hotel_backend.dto.BookingStatsDto;
-import group.assignment.booking_hotel_backend.dto.BookingStatsDto;
 import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.models.Booking;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.models.Room;
+import group.assignment.booking_hotel_backend.dto.BookingHotelOwnerDto;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,4 +35,10 @@ public interface BookingService {
     Double getTotalRevenueBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
     AdminRevenueResponse getRevenueAndBookingDetails(LocalDateTime startDate, LocalDateTime endDate);
     List<Booking> findAllBookingsByHotelOwner(Integer userId);
+    boolean hasBookingsForRoom(Integer roomId);
+    List<BookingHotelOwnerDto> getAllBookingsByHotelId(
+            Integer hotelId, Integer offset, Integer limit, String order, String query);
+    
+    List<BookingHotelOwnerDto> getAllBookingsByHotelIdAndStatus(
+            Integer hotelId, Integer offset, Integer limit, String order, String query, BookingStatus status);
 }
