@@ -293,10 +293,12 @@ public class RoomServiceImpl implements RoomService {
             roomDetails.setExtraAdult(room.getExtraAdult());
             roomDetails.setDescription(room.getDescription());
 
-            roomDetails.setRoomImgs(roomImageRepository.findByRoomRoomId(roomId).stream().map(
-                    roomImage -> roomImage.getUrl()
-            ).toList(
-            ));
+            List<String> roomImages = new ArrayList<>();
+            roomImages.add(roomRepository.findById(roomId).get().getRoomImg());
+            roomImages.addAll(roomImageRepository.findByRoomRoomId(roomId).stream().map(
+                    roomImage -> roomImage.getUrl()).toList());
+
+            roomDetails.setRoomImgs(roomImages);
 
             roomDetails.setHotelName(hotelRepository.findHotelNameByRoomId(roomId));
 
