@@ -157,7 +157,7 @@ public class RoomController {
         return ResponseEntity.ok(roomList);
     }
 
-    @GetMapping("/{roomId}")
+    @GetMapping("/room-details/{roomId}")
     public ResponseEntity<?> getRoomDetails(@PathVariable Integer roomId) {
         try {
             RoomDetailsDto roomDetails = roomService.getRoomDetails(roomId);

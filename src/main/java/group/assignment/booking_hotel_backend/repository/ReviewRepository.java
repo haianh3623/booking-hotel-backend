@@ -68,7 +68,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     List<ReviewDto> findReviewsByRoomId(@Param("roomId") Integer roomId);
 
     @Query("SELECT new group.assignment.booking_hotel_backend.dto.ReviewCardDto" +
-            "(r.reviewId, r.content, r.rating, u.fullName) " +
+            "(r.reviewId, r.content, r.rating, u.fullName, r.ownerReply) " +
             "FROM Review r " +
             "JOIN r.booking b " +
             "JOIN b.user u " +
