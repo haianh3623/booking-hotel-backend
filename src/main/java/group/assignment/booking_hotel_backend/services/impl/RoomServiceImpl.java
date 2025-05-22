@@ -208,6 +208,18 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
 
+            if(searchRequest.getServices() != null && !searchRequest.getServices().isEmpty()){
+                List<String> roomServices = roomRepository.findServicesByRoomId(room.getRoomId()).stream()
+                        .map(Service::getServiceName)
+                        .toList();
+                for (String service : searchRequest.getServices()) {
+                    if (!roomServices.contains(service)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+            }
+
             room.setAddress(addressRepository.findAddressByHotelName(hotelName).toString());
 
             List<ReviewDto> reviews = reviewRepository.findReviewsByRoomId(room.getRoomId());
