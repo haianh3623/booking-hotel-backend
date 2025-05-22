@@ -206,20 +206,29 @@ public class HotelOwnerController {
     @GetMapping("/bookings/{hotelId}")
     public ResponseEntity<List<BookingHotelOwnerDto>> getAllBookings(
             @PathVariable Integer hotelId,
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "10") Integer limit,
+            @RequestParam(defaultValue = "desc") String order,
             @RequestParam(defaultValue = "") String query,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(defaultValue = "asc") String order) {
-
-        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by(direction, "checkIn"));
-
-        Page<Booking> bookingsPage = bookingService.getBookingsByHotelId(hotelId, query.toLowerCase(), pageable);
-        List<BookingHotelOwnerDto> bookingResponseDtos = bookingsPage.getContent().stream()
-                .map(booking -> BookingMapper.mapBookingHotelOwnerDto(booking, new BookingHotelOwnerDto()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(bookingResponseDtos);
+            @RequestParam(required = false) String status) {
+        
+        try {
+            List<BookingHotelOwnerDto> bookings;
+            
+            if (status != null && !status.isEmpty()) {
+                BookingStatus bookingStatus = BookingStatus.valueOf(status);
+                bookings = bookingService.getAllBookingsByHotelIdAndStatus(
+                    hotelId, offset, limit, order, query, bookingStatus);
+            } else {
+                // Nếu không, lấy tất cả
+                bookings = bookingService.getAllBookingsByHotelId(
+                    hotelId, offset, limit, order, query);
+            }
+            
+            return ResponseEntity.ok(bookings);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     /**
@@ -571,6 +580,16 @@ public class HotelOwnerController {
             logger.error("Error replying to review", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Failed to add reply"));
+        }
+    }
+
+    @GetMapping("/room/{roomId}/has-bookings")
+    public ResponseEntity<Boolean> checkRoomHasBookings(@PathVariable Integer roomId) {
+        try {
+            boolean hasBookings = bookingService.hasBookingsForRoom(roomId);
+            return ResponseEntity.ok(hasBookings);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
 }
