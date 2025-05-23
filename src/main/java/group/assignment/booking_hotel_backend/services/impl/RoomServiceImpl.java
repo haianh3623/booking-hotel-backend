@@ -208,6 +208,18 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
 
+            if(searchRequest.getServices() != null && !searchRequest.getServices().isEmpty()){
+                List<String> roomServices = roomRepository.findServicesByRoomId(room.getRoomId()).stream()
+                        .map(Service::getServiceName)
+                        .toList();
+                for (String service : searchRequest.getServices()) {
+                    if (!roomServices.contains(service)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+            }
+
             room.setAddress(addressRepository.findAddressByHotelName(hotelName).toString());
 
             List<ReviewDto> reviews = reviewRepository.findReviewsByRoomId(room.getRoomId());
@@ -281,10 +293,12 @@ public class RoomServiceImpl implements RoomService {
             roomDetails.setExtraAdult(room.getExtraAdult());
             roomDetails.setDescription(room.getDescription());
 
-            roomDetails.setRoomImgs(roomImageRepository.findByRoomRoomId(roomId).stream().map(
-                    roomImage -> roomImage.getUrl()
-            ).toList(
-            ));
+            List<String> roomImages = new ArrayList<>();
+            roomImages.add(roomRepository.findById(roomId).get().getRoomImg());
+            roomImages.addAll(roomImageRepository.findByRoomRoomId(roomId).stream().map(
+                    roomImage -> roomImage.getUrl()).toList());
+
+            roomDetails.setRoomImgs(roomImages);
 
             roomDetails.setHotelName(hotelRepository.findHotelNameByRoomId(roomId));
 
