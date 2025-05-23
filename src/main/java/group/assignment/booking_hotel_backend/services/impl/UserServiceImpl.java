@@ -139,7 +139,10 @@ public class UserServiceImpl implements UserService {
             user.setFullName(request.getFullName());
         }
 
+        user.setAvatarUrl(request.getAvatarUrl());
+
         User updatedUser = userRepository.save(user);
+
         return UserMapper.mapToUserDto(updatedUser, new UserDto());
     }
 

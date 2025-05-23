@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 public class UpdateUserRequest {
     private String fullName;
+    private String avatarUrl;
     private String email;
     private String phone;
 }

@@ -12,6 +12,7 @@ import java.util.List;
 public class UserResponseDto {
     private Integer userId;
     private String fullName;
+    private String avatarUrl;
     private String phone;
     private String email;
     private String username;
