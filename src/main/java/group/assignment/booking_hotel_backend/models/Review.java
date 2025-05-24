@@ -17,7 +17,6 @@ public class Review extends BaseEntity{
     private String content;
     private Integer rating;
     
-    // Add this field for owner replies
     @Column(length = 1000)
     private String ownerReply;
 
