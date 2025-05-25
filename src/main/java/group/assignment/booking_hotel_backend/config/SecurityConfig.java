@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/report/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/device-token/**").permitAll()
+                                .requestMatchers("/api/search-suggestions/**").permitAll()
+                                .requestMatchers("/api/address/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

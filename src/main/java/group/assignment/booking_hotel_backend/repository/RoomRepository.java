@@ -6,6 +6,7 @@ import group.assignment.booking_hotel_backend.models.Room;
 import java.util.List;
 
 import group.assignment.booking_hotel_backend.models.SearchRequest;
+import group.assignment.booking_hotel_backend.models.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -45,4 +46,10 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
             "OR LOWER(a.specificAddress) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<RoomSearchListDto> searchRoomListByKeyword(@Param("keyword") String keyword);
     List<Room> findAllByHotel_HotelId(Integer hotelId);
+
+    @Query("SELECT DISTINCT r.roomName FROM Room r")
+    List<String> findDistinctRoomNames();
+
+    @Query("SELECT r.serviceList FROM Room r WHERE r.roomId = :roomId")
+    List<Service> findServicesByRoomId(@Param("roomId") Integer roomId);
 }
