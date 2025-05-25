@@ -206,29 +206,20 @@ public class HotelOwnerController {
     @GetMapping("/bookings/{hotelId}")
     public ResponseEntity<List<BookingHotelOwnerDto>> getAllBookings(
             @PathVariable Integer hotelId,
-            @RequestParam(defaultValue = "0") Integer offset,
-            @RequestParam(defaultValue = "10") Integer limit,
-            @RequestParam(defaultValue = "desc") String order,
             @RequestParam(defaultValue = "") String query,
-            @RequestParam(required = false) String status) {
-        
-        try {
-            List<BookingHotelOwnerDto> bookings;
-            
-            if (status != null && !status.isEmpty()) {
-                BookingStatus bookingStatus = BookingStatus.valueOf(status);
-                bookings = bookingService.getAllBookingsByHotelIdAndStatus(
-                    hotelId, offset, limit, order, query, bookingStatus);
-            } else {
-                // Nếu không, lấy tất cả
-                bookings = bookingService.getAllBookingsByHotelId(
-                    hotelId, offset, limit, order, query);
-            }
-            
-            return ResponseEntity.ok(bookings);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "asc") String order) {
+
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(offset, limit, Sort.by(direction, "checkIn"));
+
+        Page<Booking> bookingsPage = bookingService.getBookingsByHotelId(hotelId, query.toLowerCase(), pageable);
+        List<BookingHotelOwnerDto> bookingResponseDtos = bookingsPage.getContent().stream()
+                .map(booking -> BookingMapper.mapBookingHotelOwnerDto(booking, new BookingHotelOwnerDto()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(bookingResponseDtos);
     }
 
     /**
@@ -244,76 +235,76 @@ public class HotelOwnerController {
             @RequestPart("mainImage") MultipartFile mainImage,
             @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages) {
         try {
-            logger.info("Creating room with info: {}", roomInfoJson);
+        logger.info("Creating room with info: {}", roomInfoJson);
 
-            // Parse JSON to DTO
-            CreateRoomRequest request = objectMapper.readValue(roomInfoJson, CreateRoomRequest.class);
+        // Parse JSON to DTO
+        CreateRoomRequest request = objectMapper.readValue(roomInfoJson, CreateRoomRequest.class);
 
-            // Create room object
-            Room room = new Room();
-            room.setRoomName(request.getRoomName());
-            room.setArea(request.getArea());
-            room.setComboPrice2h(request.getComboPrice2h());
-            room.setPricePerNight(request.getPricePerNight());
-            room.setExtraHourPrice(request.getExtraHourPrice());
-            room.setStandardOccupancy(request.getStandardOccupancy());
-            room.setMaxOccupancy(request.getMaxOccupancy());
-            room.setNumChildrenFree(request.getNumChildrenFree());
-            room.setBedNumber(request.getBedNumber());
-            room.setExtraAdult(request.getExtraAdult());
-            room.setDescription(request.getDescription());
+        // Create room object
+        Room room = new Room();
+        room.setRoomName(request.getRoomName());
+        room.setArea(request.getArea());
+        room.setComboPrice2h(request.getComboPrice2h());
+        room.setPricePerNight(request.getPricePerNight());
+        room.setExtraHourPrice(request.getExtraHourPrice());
+        room.setStandardOccupancy(request.getStandardOccupancy());
+        room.setMaxOccupancy(request.getMaxOccupancy());
+        room.setNumChildrenFree(request.getNumChildrenFree());
+        room.setBedNumber(request.getBedNumber());
+        room.setExtraAdult(request.getExtraAdult());
+        room.setDescription(request.getDescription());
 
-            // Save main image
-            if (mainImage != null && !mainImage.isEmpty()) {
-                String filename = filesStorageService.save(mainImage);
-                room.setRoomImg(filename);
+        // Save main image
+        if (mainImage != null && !mainImage.isEmpty()) {
+            String filename = filesStorageService.save(mainImage);
+            room.setRoomImg(filename);
+        }
+
+        // Set hotel
+        Hotel hotel = hotelService.findById(request.getHotelId());
+        room.setHotel(hotel);
+
+        // Set services - improved handling of service IDs
+        if (request.getServiceIds() != null && !request.getServiceIds().isEmpty()) {
+            logger.info("Setting services: {}", request.getServiceIds());
+            List<Service> services = serviceRepository.findAllById(request.getServiceIds());
+            if (services.size() != request.getServiceIds().size()) {
+                logger.warn("Some service IDs were not found. Found {} out of {}",
+                    services.size(), request.getServiceIds().size());
             }
+            room.setServiceList(services);
+        } else {
+            logger.info("No services provided for the room");
+            room.setServiceList(new ArrayList<>());
+        }
 
-            // Set hotel
-            Hotel hotel = hotelService.findById(request.getHotelId());
-            room.setHotel(hotel);
+        // Save room
+        Room savedRoom = roomService.save(room);
 
-            // Set services - improved handling of service IDs
-            if (request.getServiceIds() != null && !request.getServiceIds().isEmpty()) {
-                logger.info("Setting services: {}", request.getServiceIds());
-                List<Service> services = serviceRepository.findAllById(request.getServiceIds());
-                if (services.size() != request.getServiceIds().size()) {
-                    logger.warn("Some service IDs were not found. Found {} out of {}",
-                            services.size(), request.getServiceIds().size());
+        // Save extra images
+        List<RoomImage> roomImageList = new ArrayList<>();
+        if (extraImages != null && !extraImages.isEmpty()) {
+            for (MultipartFile file : extraImages) {
+                if (!file.isEmpty()) {
+                    String filename = filesStorageService.save(file);
+                    RoomImage roomImage = RoomImage.builder()
+                            .room(savedRoom)
+                            .url(filename)
+                            .build();
+                    roomImageService.save(roomImage);
+                    roomImageList.add(roomImage);
                 }
-                room.setServiceList(services);
-            } else {
-                logger.info("No services provided for the room");
-                room.setServiceList(new ArrayList<>());
             }
+        }
+        savedRoom.setRoomImageList(roomImageList);
 
-            // Save room
-            Room savedRoom = roomService.save(room);
-
-            // Save extra images
-            List<RoomImage> roomImageList = new ArrayList<>();
-            if (extraImages != null && !extraImages.isEmpty()) {
-                for (MultipartFile file : extraImages) {
-                    if (!file.isEmpty()) {
-                        String filename = filesStorageService.save(file);
-                        RoomImage roomImage = RoomImage.builder()
-                                .room(savedRoom)
-                                .url(filename)
-                                .build();
-                        roomImageService.save(roomImage);
-                        roomImageList.add(roomImage);
-                    }
-                }
-            }
-            savedRoom.setRoomImageList(roomImageList);
-
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(RoomMapper.mapToCreateRoomResponse(savedRoom, new CreateRoomResponse()));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(RoomMapper.mapToCreateRoomResponse(savedRoom, new CreateRoomResponse()));
 
         } catch (Exception e) {
-            logger.error("Error creating room with images", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Failed to create room: " + e.getMessage());
+        logger.error("Error creating room with images", e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to create room: " + e.getMessage());
         }
     }
 
@@ -580,16 +571,6 @@ public class HotelOwnerController {
             logger.error("Error replying to review", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Failed to add reply"));
-        }
-    }
-
-    @GetMapping("/room/{roomId}/has-bookings")
-    public ResponseEntity<Boolean> checkRoomHasBookings(@PathVariable Integer roomId) {
-        try {
-            boolean hasBookings = bookingService.hasBookingsForRoom(roomId);
-            return ResponseEntity.ok(hasBookings);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
 }

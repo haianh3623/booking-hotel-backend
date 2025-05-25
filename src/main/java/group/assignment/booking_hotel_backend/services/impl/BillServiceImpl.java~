@@ -1,0 +1,53 @@
+package group.assignment.booking_hotel_backend.services.impl;
+import group.assignment.booking_hotel_backend.models.Bill;
+import group.assignment.booking_hotel_backend.models.Review;
+import group.assignment.booking_hotel_backend.repository.BillRepository;
+import group.assignment.booking_hotel_backend.services.BillService;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@AllArgsConstructor
+public class BillServiceImpl implements BillService {
+    private  final BillRepository billRepository;
+    @Override
+    public List<Bill> findAll() {
+        return billRepository.findAll();
+    }
+
+    @Override
+    public Bill findById(Integer id) {
+        Optional<Bill> result = billRepository.findById(id);
+        Bill bill  = null;
+        if(result.isPresent()){
+            bill = result.get();
+        }
+        else{
+            throw new RuntimeException("Không thấy bill có id là: " + id);
+        }
+        return bill;
+    }
+
+    @Override
+    public Bill save(Bill bill) {
+        return billRepository.save(bill);
+    }
+
+    @Override
+    public Bill update(Integer id, Bill updatedBill) {
+        return billRepository.findById(id).map(bill -> {
+            bill.setTotalPrice(updatedBill.getTotalPrice());
+            bill.setPaidStatus(updatedBill.getPaidStatus());
+            bill.setUser(updatedBill.getUser());
+            return billRepository.save(bill);
+        }).orElseThrow(() -> new RuntimeException("Bill not found with id: " + id));
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+
+    }
+}

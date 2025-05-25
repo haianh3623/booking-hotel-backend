@@ -16,6 +16,7 @@ public class User extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
+    @Column(name = "avatar_url")
     private String fullName;
     private String phone;
     private String email;
