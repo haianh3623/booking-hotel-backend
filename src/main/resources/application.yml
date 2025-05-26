@@ -5,7 +5,7 @@ spring:
   application:
     name: booking-hotel-backend
   profiles:
-    active: "dtq"
+    active: "hav"
 
   security:
     user:
@@ -15,7 +15,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/hotel-management?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
     username: root
-    password: root
+    password: hvxk2003
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
