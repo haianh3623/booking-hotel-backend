@@ -386,34 +386,38 @@ public class BookingServiceImpl implements BookingService {
         }
 
         extraCharges = additionalPeopleCount * extraAdultRate;
-
         String checkInDateTime = request.getCheckInDate() + " " + request.getCheckInTime() + ":00";
         String checkOutDateTime = request.getCheckOutDate() + " " + request.getCheckOutTime() + ":00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime checkInDateTimeParsed = LocalDateTime.parse(checkInDateTime, formatter);
         LocalDateTime checkOutDateTimeParsed = LocalDateTime.parse(checkOutDateTime, formatter);
 
+        // gio check in check out tieu chuan
         LocalDateTime standardCheckInTime = LocalDateTime.of(checkInDateTimeParsed.toLocalDate(), LocalTime.of(14, 0));
         LocalDateTime standardCheckOutTime = LocalDateTime.of(checkOutDateTimeParsed.toLocalDate(), LocalTime.of(11, 0));
 
-        if (checkInDateTimeParsed.isBefore(standardCheckInTime)) {
-            standardCheckInTime = standardCheckInTime.minusDays(1);
+        // neu cung 1 ngay thi ngay check out la ngay hom sau
+        if (checkInDateTimeParsed.toLocalDate().isEqual(checkOutDateTimeParsed.toLocalDate())) {
+            standardCheckOutTime = standardCheckOutTime.plusDays(1);
+        }
+        // tinh thoi gian check in so voi thoi gian check in tieu chuan
+        long earlyCheckInHours = 0L;
+        if(checkInDateTimeParsed.isBefore(standardCheckInTime)) {
+            earlyCheckInHours = ChronoUnit.HOURS.between(checkInDateTimeParsed, standardCheckInTime);
+        }
+        // tinh thoi gian check out so voi thoi gian check out tieu chuan
+        long lateCheckOutHours = 0L;
+        if(checkOutDateTimeParsed.isAfter(standardCheckOutTime)) {
+            lateCheckOutHours = ChronoUnit.HOURS.between(standardCheckOutTime, checkOutDateTimeParsed);
         }
 
-        LocalDateTime nextCheckInTime = standardCheckInTime.plusDays(1);
-        long earlyCheckInHours = ChronoUnit.HOURS.between(checkInDateTimeParsed, nextCheckInTime);
-        if (earlyCheckInHours < 0) earlyCheckInHours = 0;
+        long totalStayDurationInDays = ChronoUnit.DAYS.between(checkInDateTimeParsed, checkOutDateTimeParsed) + 1;
+        double totalStayDays = (double) totalStayDurationInDays;
+        double totalStayPrice = totalStayDays * pricePerNight
+                + (earlyCheckInHours + lateCheckOutHours) * extraHourRate
+                + extraCharges;
 
-        long lateCheckOutHours = ChronoUnit.HOURS.between(standardCheckOutTime, checkOutDateTimeParsed);
-        if (lateCheckOutHours < 0) lateCheckOutHours = 0;
-
-        if (earlyCheckInHours >= 24) {
-            earlyCheckInHours -= 24;
-        }
-
-        long totalStayDurationInDays = ChronoUnit.DAYS.between(checkInDateTimeParsed.minusDays(1), standardCheckOutTime);
-        Double totalStayPrice = (Double) (totalStayDurationInDays * pricePerNight + (earlyCheckInHours + lateCheckOutHours) * extraHourRate + extraCharges);
-
+        // tinh tien theo gio
         long totalDurationInHours = ChronoUnit.HOURS.between(checkInDateTimeParsed, checkOutDateTimeParsed);
         Double timeBasedPrice = 0D;
 
@@ -422,9 +426,7 @@ public class BookingServiceImpl implements BookingService {
         } else if (totalDurationInHours < 2) {
             timeBasedPrice = comboPriceFor2Hours;
         }
-
         timeBasedPrice += extraCharges;
-
         return Math.min(totalStayPrice, timeBasedPrice);
     }
 

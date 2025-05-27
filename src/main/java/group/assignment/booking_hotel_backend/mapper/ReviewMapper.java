@@ -29,6 +29,7 @@ public class ReviewMapper {
         dto.setReviewId(review.getReviewId());
         dto.setContent(review.getContent());
         dto.setRating(review.getRating());
+        dto.setOwnerReply(review.getOwnerReply());
         dto.setBookingDto(BookingMapper.mapToBookingDto(review.getBooking(), new BookingDto()));
         return dto;
     }

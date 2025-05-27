@@ -61,13 +61,13 @@ public class BillController {
             return ResponseEntity.notFound().build();
         }
         bill.setPaidStatus(paidStatus);
-        if (paidStatus) {
+        if (paidStatus) { // chỉ cộng điểm khi bill được thanh toán
             User user = bill.getUser();
             if (user != null) {
-                double total = bill.getTotalPrice();
-                int scoreToAdd = (int) (total * 0.01);
+                double total = bill.getTotalPrice(); // giả sử bill có phương thức getTotal()
+                int scoreToAdd = (int) (total * 0.01); // làm tròn xuống (hoặc dùng Math.round nếu cần)
                 user.setScore(user.getScore() + scoreToAdd);
-                userService.save(user);
+                userService.save(user); // hoặc customerRepository.save(customer)
             }
         }
         return ResponseEntity.ok(BillMapper.mapToBillResponseDto(billService.save(bill), new BillResponseDto()));

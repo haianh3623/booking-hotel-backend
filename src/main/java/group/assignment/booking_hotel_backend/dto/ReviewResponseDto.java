@@ -13,5 +13,6 @@ public class ReviewResponseDto {
     private Integer reviewId;
     private String content;
     private Integer rating;
+    private String ownerReply;
     private BookingDto bookingDto;
 }

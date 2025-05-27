@@ -396,34 +396,59 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime standardCheckInTime = LocalDateTime.of(checkInDateTimeParsed.toLocalDate(), LocalTime.of(14, 0));
         LocalDateTime standardCheckOutTime = LocalDateTime.of(checkOutDateTimeParsed.toLocalDate(), LocalTime.of(11, 0));
 
-        if (checkInDateTimeParsed.isBefore(standardCheckInTime)) {
-            standardCheckInTime = standardCheckInTime.minusDays(1);
+        if (checkInDateTimeParsed.toLocalDate().isEqual(checkOutDateTimeParsed.toLocalDate())) {
+            standardCheckOutTime = standardCheckOutTime.plusDays(1);
+        }
+//        if (checkInDateTimeParsed.isBefore(standardCheckInTime)) {
+//            standardCheckInTime = standardCheckInTime.minusDays(1);
+//        }
+//
+//        LocalDateTime nextCheckInTime = standardCheckInTime.plusDays(1);
+//        long earlyCheckInHours = ChronoUnit.HOURS.between(checkInDateTimeParsed, nextCheckInTime);
+//        if (earlyCheckInHours < 0) earlyCheckInHours = 0;
+//
+//        long lateCheckOutHours = ChronoUnit.HOURS.between(standardCheckOutTime, checkOutDateTimeParsed);
+//        if (lateCheckOutHours < 0) lateCheckOutHours = 0;
+//
+//        if (earlyCheckInHours >= 24) {
+//            earlyCheckInHours -= 24;
+//        }
+        long earlyCheckInHours = 0L;
+        if(checkInDateTimeParsed.isBefore(standardCheckInTime)) {
+            earlyCheckInHours = ChronoUnit.HOURS.between(checkInDateTimeParsed, standardCheckInTime);
+        }
+        long lateCheckOutHours = 0L;
+        System.out.println("Ho");
+        System.out.println(standardCheckInTime);
+        System.out.println(standardCheckOutTime);
+        System.out.println(checkInDateTimeParsed);
+        System.out.println(checkOutDateTimeParsed);
+        if(checkOutDateTimeParsed.isAfter(standardCheckOutTime)) {
+            lateCheckOutHours = ChronoUnit.HOURS.between(standardCheckOutTime, checkOutDateTimeParsed);
         }
 
-        LocalDateTime nextCheckInTime = standardCheckInTime.plusDays(1);
-        long earlyCheckInHours = ChronoUnit.HOURS.between(checkInDateTimeParsed, nextCheckInTime);
-        if (earlyCheckInHours < 0) earlyCheckInHours = 0;
-
-        long lateCheckOutHours = ChronoUnit.HOURS.between(standardCheckOutTime, checkOutDateTimeParsed);
-        if (lateCheckOutHours < 0) lateCheckOutHours = 0;
-
-        if (earlyCheckInHours >= 24) {
-            earlyCheckInHours -= 24;
-        }
-
-        long totalStayDurationInDays = ChronoUnit.DAYS.between(checkInDateTimeParsed.minusDays(1), standardCheckOutTime);
-        Double totalStayPrice = (Double) (totalStayDurationInDays * pricePerNight + (earlyCheckInHours + lateCheckOutHours) * extraHourRate + extraCharges);
-
+        long totalStayDurationInDays = ChronoUnit.DAYS.between(checkInDateTimeParsed, checkOutDateTimeParsed) + 1;
+        System.out.println("Hi");
+        System.out.println(totalStayDurationInDays);
+        System.out.println(earlyCheckInHours);
+        System.out.println(lateCheckOutHours);
+        System.out.println(extraCharges);
+        double totalStayDays = (double) totalStayDurationInDays;
+        double totalStayPrice = totalStayDays * pricePerNight
+                + (earlyCheckInHours + lateCheckOutHours) * extraHourRate
+                + extraCharges;
         long totalDurationInHours = ChronoUnit.HOURS.between(checkInDateTimeParsed, checkOutDateTimeParsed);
         Double timeBasedPrice = 0D;
 
         if (totalDurationInHours >= 2) {
             timeBasedPrice = comboPriceFor2Hours + extraHourRate * (totalDurationInHours - 2);
-        } else if (totalDurationInHours == 1) {
+        } else if (totalDurationInHours < 2) {
             timeBasedPrice = comboPriceFor2Hours;
         }
 
         timeBasedPrice += extraCharges;
+        System.out.println("Hi1");
+        System.out.println(timeBasedPrice + " " + totalStayPrice);
 
         return Math.min(totalStayPrice, timeBasedPrice);
     }

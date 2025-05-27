@@ -1,29 +1,26 @@
 package group.assignment.booking_hotel_backend.controller;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import group.assignment.booking_hotel_backend.models.Bill;
+import group.assignment.booking_hotel_backend.dto.BookingRequestDto;
+import group.assignment.booking_hotel_backend.dto.BookingResponseDto;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
-import group.assignment.booking_hotel_backend.services.BillService;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BillControllerTest {
+public class BookingAcceptControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -31,51 +28,39 @@ public class BillControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // Lấy chi tiết hóa đơn bằng id
+    // Tạo booking mới
     @Test
-    public void testGetBillById_ShouldReturnBillDetails() throws Exception {
-
-        Integer billId = 1;
-        // Act
-        String response = mockMvc.perform(get("/api/bill/" + billId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // Assert
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        assertThat(jsonNode.get("billId").asInt()).isEqualTo(1);
-        assertThat(jsonNode.get("paidStatus").asBoolean()).isTrue();
-        assertThat(jsonNode.get("userId").asInt()).isEqualTo(1);
-    }
-
-
-    // Thay đổi trạng thái hóa đơn
-    @Test
-    public void testChangePaidStatus_ShouldUpdateStatusAndReturnUpdatedBill() throws Exception {
+    public void testCreateBooking_ShouldReturnBookingDetails() throws Exception {
         // Arrange
-        Integer billId = 1;
-        boolean newPaidStatus = true;
+        BookingRequestDto requestDto = BookingRequestDto.builder()
+                .checkIn(LocalDateTime.parse("2025-06-01T12:00:00"))
+                .checkOut(LocalDateTime.parse("2025-06-02T12:00:00"))
+                .price(500000.0)
+                .userId(1)
+                .roomId(10)
+                .billId(null)
+                .build();
 
         // Act
-        String response = mockMvc.perform(patch("/api/bill/" + billId + "/status")
-                        .param("paidStatus", String.valueOf(newPaidStatus))
-                        .contentType(MediaType.APPLICATION_JSON))
+        String response = mockMvc.perform(post("/api/booking")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+        BookingResponseDto responseDto = objectMapper.readValue(response, BookingResponseDto.class);
 
         // Assert
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        assertThat(jsonNode.get("billId").asInt()).isEqualTo(1);
-        assertThat(jsonNode.get("paidStatus").asBoolean()).isTrue();
-        assertThat(jsonNode.get("userId").asInt()).isEqualTo(1);
+        assertThat(responseDto.getBookingId()).isNotNull();
+        assertThat(responseDto.getPrice()).isEqualTo(500000.0);
+        assertThat(responseDto.getStatus()).isEqualTo("PENDING");
+        assertThat(responseDto.getUserId()).isEqualTo(1);
+        assertThat(responseDto.getRoomId()).isEqualTo(10);
+        assertThat(responseDto.getCheckIn()).isEqualTo(requestDto.getCheckIn());
+        assertThat(responseDto.getCheckOut()).isEqualTo(requestDto.getCheckOut());
     }
+
 
     // Lấy booking chi tiết  theo id
     @Test

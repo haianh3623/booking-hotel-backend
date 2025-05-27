@@ -2,7 +2,6 @@ package group.assignment.booking_hotel_backend.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group.assignment.booking_hotel_backend.models.Bill;
-import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.services.BillService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -75,46 +74,5 @@ public class BillControllerTest {
         assertThat(jsonNode.get("billId").asInt()).isEqualTo(1);
         assertThat(jsonNode.get("paidStatus").asBoolean()).isTrue();
         assertThat(jsonNode.get("userId").asInt()).isEqualTo(1);
-    }
-
-    // Lấy booking chi tiết  theo id
-    @Test
-    public void testGetBookingById_ShouldReturnBookingDetails() throws Exception {
-        int bookingId = 104;
-        // Act
-        String response = mockMvc.perform(get("/api/booking/" + + bookingId))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        // Assert
-        assertThat(jsonNode.get("bookingId").asInt()).isEqualTo(bookingId);
-        assertThat(jsonNode.get("status").asText()).isEqualTo("CONFIRMED");
-    }
-
-    // Cập nhật trang thái booking
-    @Test
-    public void testUpdateBookingStatus_ShouldUpdateStatusAndReturnUpdatedBooking() throws Exception {
-        // Arrange
-        Integer bookingId = 104;
-        BookingStatus newStatus = BookingStatus.CONFIRMED;
-
-        // Act
-        String response = mockMvc.perform(put("/api/booking/" + bookingId + "/status")
-                        .param("status", newStatus.name())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // Assert
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        assertThat(jsonNode.get("bookingId").asInt()).isEqualTo(bookingId);
-        assertThat(jsonNode.get("status").asText()).isEqualTo("CONFIRMED");
     }
 }
