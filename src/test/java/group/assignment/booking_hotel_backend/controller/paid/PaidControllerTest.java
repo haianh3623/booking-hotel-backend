@@ -1,29 +1,21 @@
-package group.assignment.booking_hotel_backend.controller;
+package group.assignment.booking_hotel_backend.controller.paid;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import group.assignment.booking_hotel_backend.models.Bill;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
-import group.assignment.booking_hotel_backend.services.BillService;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BillControllerTest {
+public class PaidControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
