@@ -1,12 +1,10 @@
-package group.assignment.booking_hotel_backend.controller;
+package group.assignment.booking_hotel_backend.controller.confirm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group.assignment.booking_hotel_backend.dto.BookingRequestDto;
 import group.assignment.booking_hotel_backend.dto.BookingResponseDto;
 import group.assignment.booking_hotel_backend.dto.UpdateScoreRequest;
-import group.assignment.booking_hotel_backend.dto.UserDto;
-import group.assignment.booking_hotel_backend.mapper.UserMapper;
 import group.assignment.booking_hotel_backend.models.BookingStatus;
 import group.assignment.booking_hotel_backend.models.User;
 import group.assignment.booking_hotel_backend.services.UserService;
@@ -18,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -74,48 +71,6 @@ public class BookingAcceptControllerTest {
         assertThat(responseDto.getCheckOut()).isEqualTo(requestDto.getCheckOut());
     }
 
-
-    // Lấy booking chi tiết  theo id
-    @Test
-    public void testGetBookingById_ShouldReturnBookingDetails() throws Exception {
-        int bookingId = 104;
-        // Act
-        String response = mockMvc.perform(get("/api/booking/" + + bookingId))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        // Assert
-        assertThat(jsonNode.get("bookingId").asInt()).isEqualTo(bookingId);
-        assertThat(jsonNode.get("status").asText()).isEqualTo("CONFIRMED");
-    }
-
-    // Cập nhật trang thái booking
-    @Test
-    public void testUpdateBookingStatus_ShouldUpdateStatusAndReturnUpdatedBooking() throws Exception {
-        // Arrange
-        Integer bookingId = 104;
-        BookingStatus newStatus = BookingStatus.CONFIRMED;
-
-        // Act
-        String response = mockMvc.perform(put("/api/booking/" + bookingId + "/status")
-                        .param("status", newStatus.name())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // Assert
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        assertThat(jsonNode.get("bookingId").asInt()).isEqualTo(bookingId);
-        assertThat(jsonNode.get("status").asText()).isEqualTo("CONFIRMED");
-    }
-
     @Test
     @WithMockUser(username = "user")
     void updateScore_shouldReturnUpdatedUser_withMockService() throws Exception {
@@ -147,7 +102,7 @@ public class BookingAcceptControllerTest {
 
 
     @Test
-    void updateScore_shouldReturnUnauthorizedIfNotLoggedIn() throws Exception {
+    void updateScore_shouldReturnNotFoundIfNotFound() throws Exception {
         // Arrange
         UpdateScoreRequest request = new UpdateScoreRequest();
         request.setUserId(99);

@@ -636,4 +636,8 @@ public class BookingServiceImpl implements BookingService {
         return dto;
     }
 
+    public void setFirebaseMessagingService(FirebaseMessagingService firebaseMessagingService) {
+        this.firebaseMessagingService = firebaseMessagingService;
+    }
+
 }

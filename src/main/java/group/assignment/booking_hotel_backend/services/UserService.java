@@ -21,4 +21,6 @@ public interface UserService {
     User findByUsername(String username);
     Long count();
     List<User> findByRoleList_Name(String roleName);
+    User updateScoreByUserId(Integer userId, Integer score);
+
 }

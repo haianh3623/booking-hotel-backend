@@ -1,6 +1,5 @@
 package group.assignment.booking_hotel_backend.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group.assignment.booking_hotel_backend.dto.*;
 import group.assignment.booking_hotel_backend.mapper.UserMapper;
@@ -99,11 +98,10 @@ public class UserController {
     }
 
     @PutMapping("/score")
-    public ResponseEntity<UserDto> updateUserScore(@RequestBody UpdateScoreRequest request) throws JsonProcessingException {
+    public ResponseEntity<UserDto> updateUserScore(@RequestBody UpdateScoreRequest request) {
         User updatedUser = userService.updateScoreByUserId(request.getUserId(), request.getScore());
-        UserDto dto = UserMapper.mapToUserDto(updatedUser, new UserDto());
         System.out.println("✅ DTO trả về: " + new ObjectMapper().writeValueAsString(dto));
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(UserMapper.mapToUserDto(updatedUser, new UserDto()));
     }
 
 }

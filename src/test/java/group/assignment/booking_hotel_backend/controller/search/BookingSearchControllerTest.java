@@ -2,18 +2,9 @@ package group.assignment.booking_hotel_backend.controller.search;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import group.assignment.booking_hotel_backend.config.TestDataService;
-import group.assignment.booking_hotel_backend.dto.BookingRequestDto;
-import group.assignment.booking_hotel_backend.dto.BookingResponseDto;
 import group.assignment.booking_hotel_backend.dto.BookingSearchRequest;
-import group.assignment.booking_hotel_backend.models.Booking;
-import group.assignment.booking_hotel_backend.models.BookingStatus;
-import group.assignment.booking_hotel_backend.repository.RoleRepository;
-import group.assignment.booking_hotel_backend.repository.UserRepository;
-import group.assignment.booking_hotel_backend.security.JwtUtil;
 import group.assignment.booking_hotel_backend.services.BookingService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +13,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BookingControllerTestExample {
+public class BookingSearchControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -44,66 +32,6 @@ public class BookingControllerTestExample {
 
     @Mock
     private BookingService bookingService;
-
-
-//    @Autowired
-//    private JwtUtil jwtUtil;
-//
-//    @Autowired
-//    private TestDataService testDataService;
-//    @Autowired
-//    private UserRepository userRepository;
-//    @Autowired
-//    private RoleRepository roleRepository;
-
-//    @BeforeEach
-//    public void setUp() {
-////        testDataService.setUpUser();
-////        testDataService.setUpRole();
-//    }
-//
-//    @AfterEach
-//    public void tearDown() {
-////        userRepository.deleteAll();
-////        roleRepository.deleteAll();
-//    }
-
-//    @Test
-//    public void testSearchHotels_WithValidData_ShouldReturnHotels() throws Exception {
-//        // AAA pattern
-//        // Arrange
-//        // Act
-//        // Assert
-//        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-//                .infoSearch("")
-//                .city("Hanoi")
-//                .district("Hoan Kiem")
-//                .checkInDate("2024-04-01")
-//                .checkOutDate("2024-04-05")
-//                .checkInTime("14:00")
-//                .checkOutTime("12:00")
-//                .adults(2)
-//                .children(1)
-//                .bedNumber(2)
-//                .priceFrom(10.0)
-//                .priceTo(30000000.0)
-//                .sortBy("price_asc")
-//                .services(List.of("wifi"))
-//                .build();
-//
-//        String response = mockMvc.perform(post("/api/booking/search")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(searchRequest)))
-//                .andExpect(status().isOk())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//
-//        JsonNode jsonNode = objectMapper.readTree(response);
-//
-//        assertThat(jsonNode.size()).isGreaterThan(0);
-//        assertThat(jsonNode.get(0).get("roomId").asLong()).isEqualTo(2);
-//    }
 
 
     // Kiểm tra lựa chọn khu vực "Tất cả"
@@ -188,7 +116,7 @@ public class BookingControllerTestExample {
         // Assert
         boolean isFound = false;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 isFound = true;
                 break;
@@ -233,7 +161,7 @@ public class BookingControllerTestExample {
         // Assert
         boolean isFound = false;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 isFound = true;
                 break;
@@ -277,7 +205,7 @@ public class BookingControllerTestExample {
         // Assert
         boolean isFound = false;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 isFound = true;
                 break;
@@ -292,7 +220,7 @@ public class BookingControllerTestExample {
     @Test
     public void testBooking_Under2Hours_WithinAdultLimit_EqualFreeChildren_ShouldReturnCombo2hPrice() throws Exception {
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("DeluxeTest Room")
+                .infoSearch("Ocean Vip Room")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -319,7 +247,7 @@ public class BookingControllerTestExample {
         JsonNode jsonNode = objectMapper.readTree(response);
         JsonNode foundNode = null;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 foundNode = node;
                 break;
@@ -334,7 +262,7 @@ public class BookingControllerTestExample {
     @Test
     public void testBooking_Under2Hours_ExceedAdultLimit_EqualFreeChildren_ShouldIncludeExtraAdultFee() throws Exception {
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("DeluxeTest Room")
+                .infoSearch("Ocean Vip Room")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -361,7 +289,7 @@ public class BookingControllerTestExample {
         JsonNode jsonNode = objectMapper.readTree(response);
         JsonNode foundNode = null;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 foundNode = node;
                 break;
@@ -376,7 +304,7 @@ public class BookingControllerTestExample {
     @Test
     public void testBooking_Under2Hours_WithinAdultLimit_ExceedFreeChildren_ShouldIncludeExtraChildFee() throws Exception {
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("DeluxeTest Room")
+                .infoSearch("Ocean Vip Room")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -403,7 +331,7 @@ public class BookingControllerTestExample {
         JsonNode jsonNode = objectMapper.readTree(response);
         JsonNode foundNode = null;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 foundNode = node;
                 break;
@@ -419,7 +347,7 @@ public class BookingControllerTestExample {
     @Test
     public void testBooking_Over2Hours_DayPriceCheaperThanHourly_WithinAdultLimit_EqualFreeChildren_ShouldReturnDayPrice() throws Exception {
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("DeluxeTest Room")
+                .infoSearch("Ocean Vip Room")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -447,7 +375,7 @@ public class BookingControllerTestExample {
 
         JsonNode foundNode = null;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 foundNode = node;
                 break;
@@ -463,7 +391,7 @@ public class BookingControllerTestExample {
     @Test
     public void testBooking_Over2Hours_HourlyPriceCheaper_WithinAdultLimit_EqualFreeChildren_ShouldApplyHourlyPrice() throws Exception {
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("DeluxeTest Room")
+                .infoSearch("Ocean Vip Room")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -490,7 +418,7 @@ public class BookingControllerTestExample {
         JsonNode jsonNode = objectMapper.readTree(response);
         JsonNode foundNode = null;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 foundNode = node;
                 break;
@@ -505,7 +433,7 @@ public class BookingControllerTestExample {
     @Test
     public void testBooking_FullDay_EarlyCheckIn_OneHourBeforeStandardTime_WithinAdultLimit_EqualFreeChildren_ShouldIncludeEarlyCheckInFee() throws Exception {
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("DeluxeTest Room")
+                .infoSearch("Ocean Vip Room")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -532,7 +460,7 @@ public class BookingControllerTestExample {
         JsonNode jsonNode = objectMapper.readTree(response);
         JsonNode foundNode = null;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 foundNode = node;
                 break;
@@ -547,7 +475,7 @@ public class BookingControllerTestExample {
     @Test
     public void testBooking_FullDay_LateCheckOut_OneHourAfterStandardTime_WithinAdultLimit_EqualFreeChildren_ShouldIncludeLateCheckOutFee() throws Exception {
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("DeluxeTest Room")
+                .infoSearch("Ocean Vip Room")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -574,7 +502,7 @@ public class BookingControllerTestExample {
         JsonNode jsonNode = objectMapper.readTree(response);
         JsonNode foundNode = null;
         for (JsonNode node : jsonNode) {
-            if (node.get("roomName").asText().equals("DeluxeTest Room") &&
+            if (node.get("roomName").asText().equals("Ocean Vip Room") &&
                     node.get("hotelName").asText().equals("Grand Hotel Hanoi")) {
                 foundNode = node;
                 break;
@@ -590,7 +518,7 @@ public class BookingControllerTestExample {
     public void testSearchHotels_SortByPriceAscending_ShouldReturnSortedByPriceAsc() throws Exception {
         // Arrange
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("Room")
+                .infoSearch("")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -631,7 +559,7 @@ public class BookingControllerTestExample {
     public void testSearchHotels_SortByPriceDescending_ShouldReturnSortedByPriceDesc() throws Exception {
         // Arrange
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("Room")
+                .infoSearch("")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -672,7 +600,7 @@ public class BookingControllerTestExample {
     public void testSearchHotels_SortByRatingDescending_ShouldReturnSortedByRatingDesc() throws Exception {
         // Arrange
         BookingSearchRequest searchRequest = BookingSearchRequest.builder()
-                .infoSearch("Room")
+                .infoSearch("")
                 .city("Hanoi")
                 .district("Hoan Kiem")
                 .checkInDate("2024-06-05")
@@ -708,79 +636,298 @@ public class BookingControllerTestExample {
         }
     }
 
-    // Tạo booking mới
+    // Kiểm tra thời gian nhận phòng đã qua
     @Test
-    public void testCreateBooking_ShouldReturnBookingDetails() throws Exception {
+    public void testSearchHotels_CheckInDateInThePast_ShouldReturnBadRequest() throws Exception {
         // Arrange
-        BookingRequestDto requestDto = BookingRequestDto.builder()
-                .checkIn(LocalDateTime.parse("2025-06-01T12:00:00"))
-                .checkOut(LocalDateTime.parse("2025-06-02T12:00:00"))
-                .price(500000.0)
-                .userId(1)
-                .roomId(10)
-                .billId(null)
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-01")
+                .checkOutDate("2025-06-16")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
                 .build();
 
-        // Act
-        String response = mockMvc.perform(post("/api/booking")
+        // Act & Assert
+        mockMvc.perform(post("/api/booking/search")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        BookingResponseDto responseDto = objectMapper.readValue(response, BookingResponseDto.class);
-
-        // Assert
-        assertThat(responseDto.getBookingId()).isNotNull();
-        assertThat(responseDto.getPrice()).isEqualTo(500000.0);
-        assertThat(responseDto.getStatus()).isEqualTo("PENDING");
-        assertThat(responseDto.getUserId()).isEqualTo(1);
-        assertThat(responseDto.getRoomId()).isEqualTo(10);
-        assertThat(responseDto.getCheckIn()).isEqualTo(requestDto.getCheckIn());
-        assertThat(responseDto.getCheckOut()).isEqualTo(requestDto.getCheckOut());
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
     }
 
-
-    // Lấy booking chi tiết  theo id
+    // Kiểm tra thời gian trả phòng đã qua
     @Test
-    public void testGetBookingById_ShouldReturnBookingDetails() throws Exception {
-        int bookingId = 104;
-        // Act
-        String response = mockMvc.perform(get("/api/booking/" + + bookingId))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        // Assert
-        assertThat(jsonNode.get("bookingId").asInt()).isEqualTo(bookingId);
-        assertThat(jsonNode.get("status").asText()).isEqualTo("PENDING");
-    }
-
-    // Cập nhật trang thái booking
-    @Test
-    public void testUpdateBookingStatus_ShouldUpdateStatusAndReturnUpdatedBooking() throws Exception {
+    public void testSearchHotels_CheckOutDateInPast_ShouldReturnBadRequest() throws Exception {
         // Arrange
-        Integer bookingId = 104;
-        BookingStatus newStatus = BookingStatus.CONFIRMED;
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-01")
+                .checkOutDate("2025-06-13")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("")
+                .services(List.of())
+                .build();
 
-        // Act
-        String response = mockMvc.perform(put("/api/booking/" + bookingId + "/status")
-                        .param("status", newStatus.name())
-                        .contentType(MediaType.APPLICATION_JSON))
+        // Act & Assert
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra thời gian nhận phòng lớn hơn thời gian trả phòng
+    @Test
+    public void testSearchHotels_CheckInTimeAfterCheckOutTime_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-15")
+                .checkOutDate("2025-06-14")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
+                .build();
+
+        // Act & Assert
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra số người lớn để số âm
+    @Test
+    public void testSearchHotels_NegativeAdults_ShouldReturnBadRequest() throws Exception {
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(-1)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
+                .build();
+
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra số trẻ em để số âm
+    @Test
+    public void testSearchHotels_NegativeChildren_ShouldReturnBadRequest() throws Exception {
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(-1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
+                .build();
+
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra số  giường để số âm
+    @Test
+    public void testSearchHotels_NegativeBedNumber_ShouldReturnBadRequest() throws Exception {
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(-1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
+                .build();
+
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra khoảng giá bắt đầu để số âm
+    @Test
+    public void testSearchHotels_NegativePriceFrom_ShouldReturnBadRequest() throws Exception {
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(-1.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
+                .build();
+
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra khoảng giá kết thúc để số âm
+    @Test
+    public void testSearchHotels_NegativePriceTo_ShouldReturnBadRequest() throws Exception {
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(-1000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
+                .build();
+
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra khoảng giá kết thúc bé hơn bắt đầu
+    @Test
+    public void testSearchHotels_PriceFromGreaterThanPriceTo_ShouldReturnBadRequest() throws Exception {
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(1000000.0)
+                .priceTo(100000.0)
+                .sortBy("rating_desc")
+                .services(List.of())
+                .build();
+
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Kiểm tra dịch vụ để trống không checkbox
+    @Test
+    public void testSearchHotels_NoServiceSelected_ShouldReturnAllAvailableRooms() throws Exception {
+        // Arrange
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .infoSearch("")
+                .city("")
+                .district("")
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(Collections.emptyList())
+                .build();
+
+        // Act & Assert
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
+                .andExpect(status().isOk());
+    }
+
+
+    // Kiểm tra dịch vụ checkbox cụ thể
+    @Test
+    public void testSearchHotels_ServiceBarMatched_ShouldReturnOneRoom() throws Exception {
+        BookingSearchRequest searchRequest = BookingSearchRequest.builder()
+                .checkInDate("2025-06-14")
+                .checkOutDate("2025-06-15")
+                .checkInTime("14:00")
+                .checkOutTime("12:00")
+                .adults(2)
+                .children(1)
+                .bedNumber(1)
+                .priceFrom(0.0)
+                .priceTo(1000000.0)
+                .sortBy("rating_desc")
+                .services(List.of("Giặt ủi")) // yêu cầu phòng có Giặt ủi
+                .build();
+
+        mockMvc.perform(post("/api/booking/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchRequest)))
                 .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // Assert
-        JsonNode jsonNode = objectMapper.readTree(response);
-
-        assertThat(jsonNode.get("bookingId").asInt()).isEqualTo(bookingId);
-        assertThat(jsonNode.get("status").asText()).isEqualTo("CONFIRMED");
+                .andExpect(jsonPath("$[0].services").isArray())
+                .andExpect(jsonPath("$[0].services").value(Matchers.hasItem("Giặt ủi")));
     }
 
 }
